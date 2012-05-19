@@ -166,7 +166,7 @@ function BasicBrokers.ItemData(index, bag)
 		value, max = GetInventoryItemDurability(id)
 	end
 	if hasItem and value then
-		return BasicBrokers.ItemName(itemLink), cost, value, max
+		return itemLink, cost, value, max
 	end
 end
 	

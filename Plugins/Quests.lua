@@ -25,9 +25,9 @@ end
 function BasicBrokers.QuestLine(index)
 	local lineText, level, tag, _, isHeader, _, isComplete, isDaily = GetQuestLogTitle(index);
 	local cText = "|c%02X%02X%02X%02X%s|r"				
-	local clr = QuestDifficultyColor["header"]
+	local clr = QuestDifficultyColors["header"]
 	if not isHeader then
-		clr = GetDifficultyColor(level)
+		clr = GetQuestDifficultyColor(level)
 	end
 	local R = clr.r * 255; local G = clr.g * 255; local B = clr.b * 255;
 	if isComplete then 
