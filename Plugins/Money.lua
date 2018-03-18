@@ -1,5 +1,8 @@
 -- **********
 -- BASIC MONEY
+local _G = _G
+local BasicBrokers = _G.BasicBrokers
+
 function BasicBrokers.OnEvent.Money(_, event)
 	if event == "PLAYER_LOGIN" then
 		BasicBrokers.initialMoney = GetMoney()
@@ -26,9 +29,9 @@ function BasicBrokers.OnTooltip.Money(tip)
 	BasicBrokers.Money.tooltip:AddLine("|cff8888eeBasicBroker:|r |cffffffffMoney|r")
 	BasicBrokers.Money.tooltip:AddDoubleLine("|cff69b950  Current:|r ",current)
 	BasicBrokers.Money.tooltip:AddDoubleLine("|cff69b950  Session:|r ",session)
-	BasicBrokers.Money.tooltip:AddDoubleLine("|cff69b950  Per Hour:|r ",perHour)	
-	BasicBrokers.Money.tooltip:AddLine(" ")	
-	BasicBrokers.Money.tooltip:AddLine("Alt-Click: Resets Session")			
+	BasicBrokers.Money.tooltip:AddDoubleLine("|cff69b950  Per Hour:|r ",perHour)
+	BasicBrokers.Money.tooltip:AddLine(" ")
+	BasicBrokers.Money.tooltip:AddLine("Alt-Click: Resets Session")
 end
 
 function BasicBrokers.OnClick.Money()

@@ -1,27 +1,20 @@
 -- **********
 -- BASIC XP
 -- **********
+local _G = _G
+local BasicBrokers = _G.BasicBrokers
+
 local uCls = select(2, UnitClass("player")) -- player class
-local function getPetXP()
-	if uCls == "HUNTER" then
-		local currXP, nextXP = GetPetExperience()
-		if nextXP > 0 then
-			return ", Pet: "..format("%.1f%%", (currXP / nextXP * 100))
-		end
-	end
-	return ""
-end
 
 function BasicBrokers.OnEvent.XP(_,event,unit)
 	if (unit and unit == "player") or not unit then
 		local xp = format("%.1f%%", (UnitXP("player") / UnitXPMax("player") * 100))
-		local pxp = getPetXP()
 		local rested = GetXPExhaustion()
 		if rested then
 			rested = format("%.1f%%", (rested / UnitXPMax("player") * 100))
-			BasicBrokers.Text( "XP", xp.."  ("..rested..")"..pxp )
+			BasicBrokers.Text("XP", xp .. "  (" .. rested .. ")")
 		else
-			BasicBrokers.Text( "XP", xp..pxp )
+			BasicBrokers.Text("XP", xp)
 		end
 	end
 	if event == "PLAYER_LOGIN" then
@@ -86,8 +79,3 @@ BasicBrokers.CreatePlugin("XP","0%","Interface\\AddOns\\BasicBrokers\\Icons\\xp.
 BasicBrokers.RegisterEvent("XP", "PLAYER_XP_UPDATE")
 BasicBrokers.RegisterEvent("XP", "PLAYER_LOGIN")
 BasicBrokers.RegisterEvent("XP", "PLAYER_LEVEL_UP")
-if uCls == "HUNTER" then
-	BasicBrokers.RegisterEvent("XP", "UNIT_PET")
-	BasicBrokers.RegisterEvent("XP", "UNIT_PET_EXPERIENCE")
-	BasicBrokers.RegisterEvent("XP", "PET_UI_UPDATE")
-end

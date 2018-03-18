@@ -1,4 +1,4 @@
-## Interface: 40300
+## Interface: 60200
 ## Title: |cff8888eeBasicBroker:|r |cffffffffPlugins|r
 ## Notes: LDB Basic Broker Plugins
 ## Author: Sid67
@@ -13,6 +13,8 @@ Plugins\Quests.lua
 Plugins\Bags.lua
 Plugins\XP.lua
 Plugins\Durability.lua
-#Plugins\Skills.lua
 Plugins\Faction.lua
+Plugins\OHFollowers.lua
+
+#Plugins\Skills.lua
 #Plugins\Aggro.lua

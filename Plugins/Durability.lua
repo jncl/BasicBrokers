@@ -1,5 +1,8 @@
 -- **********
 -- BASIC DURABILITY
+local _G = _G
+local BasicBrokers = _G.BasicBrokers
+
  BasicBrokers.itemSlot = {
 	"Head",
 	"Shoulder", 
@@ -11,8 +14,7 @@
 	"Hands", 
 	"MainHand", 
 	"SecondaryHand", 
-	"Ranged", 
-	}
+}
 	
 StaticPopupDialogs["BASICBROKER_DURABILITY"] = {
   text = "Repair damaged equipment for %s? \n %s",

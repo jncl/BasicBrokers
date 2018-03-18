@@ -1,5 +1,8 @@
 -- **********
 -- BASIC BAGS
+local _G = _G
+local BasicBrokers = _G.BasicBrokers
+
 function BasicBrokers.OnEvent.Bags(_, event, bag)
 	local total, free, used_per, used = 0, 0, 0, 0
 	for i = 0, 4 do
@@ -10,14 +13,14 @@ function BasicBrokers.OnEvent.Bags(_, event, bag)
 	end
 	used = total - free
 	used_per = (free / total)
-	local used_color = "|cFF00FF00 "
-	local total_color = "|cFF00FF00 "
+	local used_color = "|cFF00FF00"
+	local total_color = "|cFF00FF00"
 	if  used_per < .15 then
-		used_color = "|cFFFF0000 "
+		used_color = "|cFFFF0000"
 	elseif used_per < .35 then
-		used_color = "|cFFFFFF00 "	
+		used_color = "|cFFFFFF00"
 	end
-	BasicBrokers.Text( "Bags",  used_color..used.."|r/"..total_color..total.."|r")
+	BasicBrokers.Text( "Bags",  used_color .. used .. "|r/" .. total_color .. total .. "|r")
 end
 
 function BasicBrokers.OnTooltip.Bags(tip)
@@ -26,8 +29,8 @@ function BasicBrokers.OnTooltip.Bags(tip)
 	BasicBrokers.Bags.tooltip:AddLine("|cff8888eeBasicBroker:|r |cffffffffBags|r")
 	for i = 0, 4 do
 		if GetBagName(i) then
-			BasicBrokers.Bags.tooltip:AddDoubleLine("|cff69b950  "..GetBagName(i)..":|r ", (GetContainerNumSlots(i)-GetContainerNumFreeSlots(i)).."/"..GetContainerNumSlots(i))		
-		end	
+			BasicBrokers.Bags.tooltip:AddDoubleLine("|cff69b950  "..GetBagName(i)..":|r ", (GetContainerNumSlots(i)-GetContainerNumFreeSlots(i)).."/"..GetContainerNumSlots(i))
+		end
 	end
 end
 
@@ -40,10 +43,10 @@ end
 
 function BasicBrokers.OnClick.Bags(_, which)
 	which = which == "RightButton"
-	if which then 
+	if which then
 		return
 	elseif is_backpack_open() then
-		CloseAllBags() 
+		CloseAllBags()
 	else
 		OpenAllBags()
 	end
