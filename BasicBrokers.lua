@@ -1,16 +1,18 @@
 -- BasicBrokers Core
-local _G = _G
 local bbName, BasicBrokers = ...
+local _G = _G
 _G[bbName] = BasicBrokers
+
+BasicBrokers.isClassic = _G.GetCVar("agentUID"):find("wow_classic") and true or false
 
 BasicBrokers.OnEvent = {}
 BasicBrokers.OnTooltip = {}
 BasicBrokers.OnClick = {}
-BasicBrokers.TT = CreateFrame("GameTooltip", "BasicBrokerScanTip", nil, "GameTooltipTemplate")
-BasicBrokers.TT:SetOwner(UIParent, "ANCHOR_NONE")
-local ldb = LibStub:GetLibrary("LibDataBroker-1.1")
+BasicBrokers.TT = _G.CreateFrame("GameTooltip", "BasicBrokerScanTip", nil, "GameTooltipTemplate")
+BasicBrokers.TT:SetOwner(_G.WorldFrame, "ANCHOR_NONE")
+local ldb = _G.LibStub:GetLibrary("LibDataBroker-1.1")
 
-local format, mod, math, string, floor = _G.format, _G.mod, _G.math, _G.string, _G.floor
+BasicBrokers.inGarrison = _G.C_Garrison.IsPlayerInGarrison(_G.Enum.GarrisonType.Type_6_0)
 
 function BasicBrokers.CreatePlugin(plugin, pluginText, pluginIcon, pluginType)
 	BasicBrokers[plugin] = {
@@ -42,7 +44,7 @@ end
 function BasicBrokers.CommaFormat(amount)
   local formatted, k = amount
   while true do
-    formatted, k = string.gsub(formatted, "^(-?%d+)(%d%d%d)", '%1,%2')
+    formatted, k = _G.string.gsub(formatted, "^(-?%d+)(%d%d%d)", '%1,%2')
     if (k==0) then
       break
     end
@@ -53,13 +55,13 @@ end
 function BasicBrokers.DecimalFormat(amount, decimal)
   local famount, remain, formatted
   if not decimal then decimal = 2 end
-  famount = math.abs(math.floor( (amount * 10^decimal) + 0.5) / (10^decimal))
-  famount = math.floor(famount)
-  remain =  math.floor( ((math.abs(amount) - famount) * 10^decimal) + 0.5) / (10^decimal)
+  famount =_G.math.abs(_G.math.floor( (amount * 10^decimal) + 0.5) / (10^decimal))
+  famount = _G.math.floor(famount)
+  remain =  _G.math.floor( ((_G.math.abs(amount) - famount) * 10^decimal) + 0.5) / (10^decimal)
   formatted = BasicBrokers.CommaFormat(famount)
   if (decimal > 0) then
-    remain = string.sub(_G.tostring(remain),3)
-    formatted = formatted .. "." .. remain .. string.rep("0", decimal - string.len(remain))
+    remain = _G.string.sub(_G.tostring(remain),3)
+    formatted = formatted .. "." .. remain .. _G.string.rep("0", decimal - _G.string.len(remain))
   end
   return formatted
 end
@@ -67,18 +69,18 @@ end
 function BasicBrokers.GoldToText(money)
 	local gold, silver, copper
 	if money > 0 then
-		gold = floor(money / 10000)
-		silver = floor((money - (gold * 10000)) / 100)
-		copper = mod(money, 100)
-		return format("|cffffffff%i|r|cffffd700%s|r |cffffffff%i|r|cffc7c7cf%s|r |cffffffff%i|r|cffeda55f%s|r", gold, "g", silver, "s", copper, "c")
+		gold = _G.floor(money / 10000)
+		silver = _G.floor((money - (gold * 10000)) / 100)
+		copper = _G.mod(money, 100)
+		return _G.format("|cffffffff%i|r|cffffd700%s|r |cffffffff%i|r|cffc7c7cf%s|r |cffffffff%i|r|cffeda55f%s|r", gold, "g", silver, "s", copper, "c")
 	elseif money < 0 then
 		money = (money * -1)
-		gold = floor(money / 10000)
-		silver = floor((money - (gold * 10000)) / 100)
-		copper = mod(money, 100)
-		return format("|cFFFF0000-%i|r|cffffd700%s|r |cFFFF0000%i|r|cffc7c7cf%s|r |cFFFF0000%i|r|cffeda55f%s|r", gold, "g", silver, "s", copper, "c")
+		gold = _G.floor(money / 10000)
+		silver = _G.floor((money - (gold * 10000)) / 100)
+		copper = _G.mod(money, 100)
+		return _G.format("|cFFFF0000-%i|r|cffffd700%s|r |cFFFF0000%i|r|cffc7c7cf%s|r |cFFFF0000%i|r|cffeda55f%s|r", gold, "g", silver, "s", copper, "c")
 	else
-		return format("|cffffffff%i|r|cffffd700%s|r |cffffffff%i|r|cffc7c7cf%s|r |cffffffff%i|r|cffeda55f%s|r", 0, "g", 0, "s", 0, "c")
+		return _G.format("|cffffffff%i|r|cffffd700%s|r |cffffffff%i|r|cffc7c7cf%s|r |cffffffff%i|r|cffeda55f%s|r", 0, "g", 0, "s", 0, "c")
 	end
 end
 
@@ -88,25 +90,6 @@ function BasicBrokers.FactionLabel(reaction)
 	local g = _G.FACTION_BAR_COLORS[reaction].g * 255
 	local b = _G.FACTION_BAR_COLORS[reaction].b * 255
 	local cText = "|c%02X%02X%02X%02X"
-	local hexcolor = format(cText, 255, r, g, b)
+	local hexcolor = _G.format(cText, 255, r, g, b)
 	return name, hexcolor
 end
-
---Interface\\Minimap\\Tracking\\
---
---Ammunition.blp
---Banker.blp
---Class.blp
---Food.blp
---Mailbox.blp
---OBJECTICONS.BLP
---Profession.blp
---Repair.blp
---TrivialQuests.blp
---StableMaster.blp
---Reagents.blp
---Poisons.blp
---Innkeeper.blp
---FlightMaster.blp
---BattleMaster.blp
---Auctioneer.blp
