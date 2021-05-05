@@ -15,6 +15,8 @@ Plugins\XP.lua
 Plugins\Durability.lua
 Plugins\Faction.lua
 Plugins\OHFollowers.lua
+Plugins\BfAFollowers.lua
+Plugins\Adventurers.lua
 
 #Plugins\Skills.lua
 #Plugins\Aggro.lua
