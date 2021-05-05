@@ -4,7 +4,7 @@ local _G = _G
 local BasicBrokers = _G.BasicBrokers
 
 function BasicBrokers.OnEvent.Quests(_, event, bag)
-	local _, numQuests = _G.GetNumQuestLogEntries()
+	local _, numQuests = _G.GetNumQuestLogEntries and _G.GetNumQuestLogEntries() or _G.C_QuestLog.GetNumQuestLogEntries()
 	if not numQuests then numQuests = 0 end
 	BasicBrokers.Text( "Quests",  "|cFF00FF00" .. numQuests .. "|r/" .. "|cFF00FF0025" .. "|r")
 end
@@ -13,7 +13,7 @@ function BasicBrokers.OnTooltip.Quests(tip)
 	if not BasicBrokers.Quests.tooltip then BasicBrokers.Quests.tooltip = tip end
 	BasicBrokers.Quests.tooltip:ClearLines()
 	BasicBrokers.Quests.tooltip:AddLine("|cff8888eeBasicBroker:|r |cffffffffQuests|r")
-	local numEntries = _G.GetNumQuestLogEntries()
+	local numEntries = _G.GetNumQuestLogEntries and _G.GetNumQuestLogEntries() or _G.C_QuestLog.GetNumQuestLogEntries()
 	if numEntries == 0 then BasicBrokers.Quests.tooltip:AddLine("No quests in the QuestLog") end
 	for i = 1, numEntries do
 		BasicBrokers.QuestLine(i)
@@ -26,7 +26,17 @@ function BasicBrokers.OnTooltip.Quests(tip)
 end
 
 function BasicBrokers.QuestLine(questIndex)
-	local title, level, _, isHeader, _, isComplete, frequency, _, _, _, _, _, _, isStory = _G.GetQuestLogTitle(questIndex)
+	local title, level, isHeader, isComplete, frequency, isStory, questID
+	if _G.GetQuestLogTitle then
+		title, level, _, isHeader, _, isComplete, frequency, _, _, _, _, _, _, isStory = _G.GetQuestLogTitle(questIndex)
+	else
+		-- print("Quests", questIndex, _G.C_QuestLog.GetInfo(questIndex))
+		-- _G.Spew("", _G.C_QuestLog.GetInfo(questIndex))
+		local questInfo = _G.C_QuestLog.GetInfo(questIndex)
+		title, level, isHeader, isStory = questInfo.title, questInfo.level, questInfo.isHeader, questInfo.isStory
+		frequency = questInfo.frequency or 0
+		isComplete = _G.C_QuestLog.IsComplete(questInfo.questID)
+	end
 	-- print("QuestLine", title, level, isHeader, isComplete, frequency, isStory)
 	-- local lineText, level, _, isHeader, _, isComplete, frequency = _G.GetQuestLogTitle(questIndex)
 	-- print("QuestLine", questIndex, lineText, level, tag, isHeader, _, isComplete, frequency)
@@ -47,9 +57,9 @@ function BasicBrokers.QuestLine(questIndex)
 	if isComplete then
 		R, G, B = 100, 150, 255
 		title = title .. "  |cffffffff(complete)|r"
-	elseif frequency == _G.LE_QUEST_FREQUENCY_DAILY then
+	elseif frequency == (_G.LE_QUEST_FREQUENCY_DAILY or 1) then
 		title = title .. "  (daily)"
-	elseif frequency == _G.LE_QUEST_FREQUENCY_WEEKLY then
+	elseif frequency == (_G.LE_QUEST_FREQUENCY_WEEKLY or 2)then
 		title = title .. "  (weekly)"
 	end
 	title = _G.format(cText, 255, R, G, B, title)

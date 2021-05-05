@@ -5,6 +5,8 @@ local aObj
 
 local BasicBrokers = _G.BasicBrokers
 
+if BasicBrokers.isClassic then return end
+
 local hexClose = _G.FONT_COLOR_CODE_CLOSE
 local hexBlu = "|cff00ff00"
 local hexBlue  = "|cff8888ee"
@@ -12,8 +14,8 @@ local hexLightBlue = _G.RGBToColorCode(0.683, 0.941, 1)
 local hexWhite = "|cffffffff"
 local indent4 = "    "
 local indent8 = "        "
--- local followerType = 0
-local followerType = _G.LE_FOLLOWER_TYPE_GARRISON_7_0 -- OrderHall
+local garrisonType = _G.Enum.GarrisonType.Type_7_0
+local followerType = _G.Enum.GarrisonFollowerType.FollowerType_7_0
 local troops = {}
 
 local catInfo, catLimit = {}
@@ -202,10 +204,21 @@ function BasicBrokers.FollowerLine(flwr)
 
 end
 
-do
+local function initialize()
 
-	-- if not eligible for OrderHall then do nothing
-	if _G.UnitLevel("player") < 100 then return end
+	-- wait for garrison info to become available (>= 5 secs)
+	if not _G.C_Garrison.HasGarrison(garrisonType) then
+		if cnt < 2 then
+			_G.C_Timer.After(0.5, function()
+				cnt = cnt + 1
+				initialize()
+			end)
+			return
+		else
+			-- if not eligible for Order Hall Missions then do nothing
+			return
+		end
+	end
 
 	-- create plugin
 	_G.BasicBrokers.CreatePlugin("OHFollowers", "0/9", "Interface\\Icons\\Spell_Holy_ChampionsGrace.blp")
@@ -229,5 +242,18 @@ do
 	_G.BasicBrokers.RegisterEvent("OHFollowers", "GARRISON_TALENT_COMPLETE")
 	_G.BasicBrokers.RegisterEvent("OHFollowers", "GARRISON_TALENT_UPDATE")
 	aObj.frame:RegisterUnitEvent("UNIT_PHASE", "player")
+
+end
+
+do
+
+	if _G.UnitLevel("player") < 45
+	or _G.UnitLevel("player") > 50
+	or not garrisonType
+	then
+		return
+	end
+
+	initialize()
 
 end
