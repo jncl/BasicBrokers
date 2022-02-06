@@ -80,7 +80,7 @@ local function getAndShow()
 end
 
 local delay, tmrActive = 1.0, false
-function BasicBrokers.OnEvent.OHFollowers(_, event, ...)
+function BasicBrokers.OnEvent.OHFollowers(_, event, _)
 	-- _G.print("BB OHF event:", event, ...)
 
 	if (event == "GARRISON_TALENT_COMPLETE"
@@ -126,7 +126,7 @@ local function sortFollowers(self) -- copied from GarrisonFollowerList_SortFollo
 		end
 
 		-- last resort; all else being equal sort by name, and then followerID
-		local strCmpResult = strcmputf8i(follower1.name, follower2.name)
+		local strCmpResult = _G.strcmputf8i(follower1.name, follower2.name)
 		if strCmpResult ~= 0 then
 			return strCmpResult < 0
 		end
@@ -142,7 +142,7 @@ function BasicBrokers.OnTooltip.OHFollowers(tip)
 
 	if not aObj.tooltip then aObj.tooltip = tip end
 	aObj.tooltip:ClearLines()
-	aObj.tooltip:AddLine(hexBlue .. "BasicBroker: " .. hexClose .. hexWhite .. "Legion Followers" .. hexClose)
+	aObj.tooltip:AddLine(hexBlue .. "BasicBroker: " .. hexClose .. hexWhite .. "OHFollowers" .. hexClose)
 	aObj.hdgCnt = 1
 
 	if aObj.numFollowers == 0 then
@@ -200,12 +200,11 @@ function BasicBrokers.FollowerLine(flwr)
 		aObj.tooltip:AddDoubleLine(followerInfo, hexBlue .. flwr.levelXP - flwr.xp .. " XP to next upgrade" .. hexClose)
 	end
 
-	followerName, status = nil, nil
-
 end
 
 local function initialize()
 
+	local cnt = 0
 	-- wait for garrison info to become available (>= 5 secs)
 	if not _G.C_Garrison.HasGarrison(garrisonType) then
 		if cnt < 2 then
@@ -247,8 +246,8 @@ end
 
 do
 
-	if _G.UnitLevel("player") < 45
-	or _G.UnitLevel("player") > 50
+	if _G.UnitLevel("player") < 40
+	or _G.UnitLevel("player") > 45
 	or not garrisonType
 	then
 		return

@@ -51,7 +51,7 @@ function BasicBrokers.MerchantDiscount()
 	local faction, reaction =  BasicBrokers.TargetFactionInfo()
 	if faction and reaction then
 		reputation, hexcolor = BasicBrokers.FactionLabel(reaction)
-		for k,v in pairs(BasicBrokers.itemSlot) do
+		for k, _ in pairs(BasicBrokers.itemSlot) do
 			itemName, item_cost = BasicBrokers.ItemData(k)
 			if itemName then
 				if item_cost > 0 then
@@ -76,7 +76,7 @@ end
 
 function BasicBrokers.TargetFactionInfo()
 	local tiptext, j
-	BasicBrokers.TT:SetOwner(UIParent, "ANCHOR_NONE")
+	BasicBrokers.TT:SetOwner(_G.UIParent, "ANCHOR_NONE")
 	BasicBrokers.TT:ClearLines()
 	BasicBrokers.TT:SetUnit("target")
 	for i = 1, BasicBrokers.TT:NumLines() do
@@ -84,7 +84,7 @@ function BasicBrokers.TargetFactionInfo()
 	   j = 1
 	   -- rather not do-while but GetNumFactions() only returns active
 	   while _G.GetFactionInfo(j) do
-		faction, _, reaction = _G.GetFactionInfo(j)
+		local faction, _, reaction = _G.GetFactionInfo(j)
 		if faction == tiptext then
 			return faction, reaction
 		end
@@ -101,7 +101,7 @@ function BasicBrokers.OnTooltip.Durability(tip)
 	if not BasicBrokers.Durability.tooltip then BasicBrokers.Durability.tooltip = tip end
 
 	local total_repairs = 0
-	for k,v in pairs(BasicBrokers.itemSlot) do
+	for k, _ in pairs(BasicBrokers.itemSlot) do
 		total_repairs = total_repairs + BasicBrokers.AddInventoryItem(k)
 	end
 
@@ -120,16 +120,16 @@ function BasicBrokers.OnTooltip.Durability(tip)
 end
 
 function BasicBrokers.OnClick.Durability()
-	if _G.IsAltKeyDown() then
-	end
+	-- if _G.IsAltKeyDown() then
+	-- end
 end
 
 function BasicBrokers.UpdatePercent()
-	local hasItem, cost, value, max
+	local hasItem, value, max
 	local percentage = 1
 	local hexcolor = "|cff8888ee"
-	for k, v in pairs(BasicBrokers.itemSlot) do
-		hasItem, cost, value, max = BasicBrokers.ItemData(k)
+	for k, _ in pairs(BasicBrokers.itemSlot) do
+		hasItem, _, value, max = BasicBrokers.ItemData(k)
 		if hasItem then
 			if max > 0 then
 				if (value / max) < percentage then
@@ -151,7 +151,7 @@ function BasicBrokers.AddInventoryItem(index)
 	local itemName, cost, value, max = BasicBrokers.ItemData(index)
 	if itemName then
 		if max > 0 then
-			local percentage = format("%.1f%%", (value / max) * 100)
+			local percentage = _G.format("%.1f%%", (value / max) * 100)
 			BasicBrokers.Durability.tooltip:AddDoubleLine("  " .. itemName, percentage)
 			return cost
 		end
@@ -188,11 +188,11 @@ function BasicBrokers.ItemName(itemLink)
 end
 
 function BasicBrokers.BagItems()
-	local bag, slot, hasItem, cost, value, max
+	local hasItem, cost, _
 	local total_cost = 0
 	for bag = 0, 4 do
 		for slot = 1, _G.GetContainerNumSlots(bag) do
-			local hasItem, cost, value, max = BasicBrokers.ItemData(slot, bag)
+			hasItem, cost, _, _ = BasicBrokers.ItemData(slot, bag)
 			if hasItem then
 				total_cost = cost + total_cost
 			end

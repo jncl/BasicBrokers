@@ -3,7 +3,7 @@
 local _G = _G
 local BasicBrokers = _G.BasicBrokers
 
-function BasicBrokers.OnEvent.Quests(_, event, bag)
+function BasicBrokers.OnEvent.Quests(_, _, _)
 	local _, numQuests = _G.GetNumQuestLogEntries and _G.GetNumQuestLogEntries() or _G.C_QuestLog.GetNumQuestLogEntries()
 	if not numQuests then numQuests = 0 end
 	BasicBrokers.Text( "Quests",  "|cFF00FF00" .. numQuests .. "|r/" .. "|cFF00FF0025" .. "|r")
@@ -26,7 +26,7 @@ function BasicBrokers.OnTooltip.Quests(tip)
 end
 
 function BasicBrokers.QuestLine(questIndex)
-	local title, level, isHeader, isComplete, frequency, isStory, questID
+	local _, title, level, isHeader, isComplete, frequency, isStory
 	if _G.GetQuestLogTitle then
 		title, level, _, isHeader, _, isComplete, frequency, _, _, _, _, _, _, isStory = _G.GetQuestLogTitle(questIndex)
 	else

@@ -5,23 +5,22 @@ local BasicBrokers = _G.BasicBrokers
 
 function BasicBrokers.OnEvent.Money(_, event)
 	if event == "PLAYER_LOGIN" then
-		BasicBrokers.initialMoney = GetMoney()
-		BasicBrokers.sessionTime_Money = time()
+		BasicBrokers.initialMoney = _G.GetMoney()
+		BasicBrokers.sessionTime_Money = _G.time()
 	end
-	local current = BasicBrokers.GoldToText(GetMoney())
+	local current = BasicBrokers.GoldToText(_G.GetMoney())
 	BasicBrokers.Text( "Money",  current)
 end
 
 
 function BasicBrokers.OnTooltip.Money(tip)
 	if not BasicBrokers.Money.tooltip then BasicBrokers.Money.tooltip = tip end
-	local money = GetMoney()
+	local money = _G.GetMoney()
 	local current = BasicBrokers.GoldToText(money)
-	local initial = BasicBrokers.GoldToText(BasicBrokers.initialMoney)
 	local session = money - BasicBrokers.initialMoney
 	local perHour = 0
 	if session ~= 0 then
-		perHour =  session / (time() - BasicBrokers.sessionTime_Money ) * 3600
+		perHour =  session / (_G.time() - BasicBrokers.sessionTime_Money ) * 3600
 	end
 	perHour = BasicBrokers.GoldToText(perHour)
 	session = BasicBrokers.GoldToText(session)
@@ -35,9 +34,9 @@ function BasicBrokers.OnTooltip.Money(tip)
 end
 
 function BasicBrokers.OnClick.Money()
-	if IsAltKeyDown() then
-		BasicBrokers.initialMoney = GetMoney()
-		BasicBrokers.sessionTime_Money = time()
+	if _G.IsAltKeyDown() then
+		BasicBrokers.initialMoney = _G.GetMoney()
+		BasicBrokers.sessionTime_Money = _G.time()
 	end
 end
 

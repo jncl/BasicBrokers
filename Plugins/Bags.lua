@@ -3,12 +3,12 @@
 local _G = _G
 local BasicBrokers = _G.BasicBrokers
 
-function BasicBrokers.OnEvent.Bags(_, event, bag)
-	local total, free, used_per, used = 0, 0, 0, 0
+function BasicBrokers.OnEvent.Bags(_, _, _)
+	local total, free, used_per, used = 0, 0
 	for i = 0, 4 do
 		if BasicBrokers.IsValidBag(i) then
-			total = total + GetContainerNumSlots(i)
-			free = free + GetContainerNumFreeSlots(i)
+			total = total + _G.GetContainerNumSlots(i)
+			free = free + _G.GetContainerNumFreeSlots(i)
 		end
 	end
 	used = total - free
@@ -28,14 +28,14 @@ function BasicBrokers.OnTooltip.Bags(tip)
 	BasicBrokers.Bags.tooltip:ClearLines()
 	BasicBrokers.Bags.tooltip:AddLine("|cff8888eeBasicBroker:|r |cffffffffBags|r")
 	for i = 0, 4 do
-		if GetBagName(i) then
-			BasicBrokers.Bags.tooltip:AddDoubleLine("|cff69b950  "..GetBagName(i)..":|r ", (GetContainerNumSlots(i)-GetContainerNumFreeSlots(i)).."/"..GetContainerNumSlots(i))
+		if _G.GetBagName(i) then
+			BasicBrokers.Bags.tooltip:AddDoubleLine("|cff69b950  ".. _G.GetBagName(i)..":|r ", (_G.GetContainerNumSlots(i) - _G.GetContainerNumFreeSlots(i)).."/".. _G.GetContainerNumSlots(i))
 		end
 	end
 end
 
 local function is_backpack_open()
-	for bag = 1, NUM_CONTAINER_FRAMES do
+	for bag = 1, _G.NUM_CONTAINER_FRAMES do
 		local check = _G["ContainerFrame"..bag]
 		if check:GetID() == 0 and check:IsVisible() then return true end
 	end
@@ -46,9 +46,9 @@ function BasicBrokers.OnClick.Bags(_, which)
 	if which then
 		return
 	elseif is_backpack_open() then
-		CloseAllBags()
+		_G.CloseAllBags()
 	else
-		OpenAllBags()
+		_G.OpenAllBags()
 	end
 end
 
@@ -58,7 +58,7 @@ BasicBrokers.RegisterEvent("Bags", "BAG_UPDATE")
 
 -- don't include counts of specialty bags
 function BasicBrokers.IsValidBag(num)
-	local bag = GetBagName(num)
+	local bag = _G.GetBagName(num)
 	if not bag then return false end
 	if BasicBrokers.NotBag[bag] then return false end
 	return true

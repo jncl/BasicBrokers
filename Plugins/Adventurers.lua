@@ -16,19 +16,19 @@ local indent4 = "    "
 local indent8 = indent4 .. indent4
 local garrisonType = _G.Enum.GarrisonType.Type_9_0
 local followerType = _G.Enum.GarrisonFollowerType.FollowerType_9_0
-local maxCompanions = 10
 local followers = {}
+
 local function getFollowerInfo()
 
 	aObj.numActiveFollowers = _G.C_Garrison.GetNumActiveFollowers(followerType) or 0
-	followers = _G.C_Garrison.GetFollowers(followerType) or {}
-	aObj.numFollowers = _G.C_Garrison.GetNumFollowers(followerType)
+	aObj.numFollowers       = _G.C_Garrison.GetNumFollowers(followerType)
+	followers               = _G.C_Garrison.GetFollowers(followerType) or {}
 
 	-- _G.print("BB Adventurers:", aObj.numActiveFollowers, #followers, aObj.numFollowers)
 
 	aObj.followersList = {}
-	aObj.numActive = 0
-	aObj.numInactive = 0
+	aObj.numActive     = 0
+	aObj.numInactive   = 0
 	for idx, companion in _G.pairs(followers) do
 		-- _G.Spew("", companion)
 		_G.tinsert(aObj.followersList, idx) -- used for sorting followers
@@ -44,7 +44,7 @@ end
 local function showBrokerInfo()
 
 	-- show follower counts
-	BasicBrokers.Text("Adventurers",  hexGreen .. aObj.numFollowers .. "/" .. maxCompanions .. hexClose)
+	BasicBrokers.Text("Adventurers",  hexGreen .. aObj.numActiveFollowers .. "/" .. aObj.numFollowers .. hexClose)
 
 end
 local function getAndShow()
@@ -55,7 +55,7 @@ local function getAndShow()
 end
 
 local delay, tmrActive = 1.0, false
-function BasicBrokers.OnEvent.Adventurers(_, event, ...)
+function BasicBrokers.OnEvent.Adventurers(_, event, _)
 	-- _G.print("BB Adventurers event:", event, ...)
 
 	if event == "GARRISON_FOLLOWER_CATEGORIES_UPDATED" then
@@ -72,7 +72,7 @@ function BasicBrokers.OnEvent.Adventurers(_, event, ...)
 
 end
 
-local function sortFollowers(self) -- copied from GarrisonFollowerList_SortFollowers
+local function sortFollowers(fList) -- copied from GarrisonFollowerList_SortFollowers
 
 	local function comparison(index1, index2)
 
@@ -89,7 +89,7 @@ local function sortFollowers(self) -- copied from GarrisonFollowerList_SortFollo
 		end
 
 		-- last resort; all else being equal sort by name, and then followerID
-		local strCmpResult = strcmputf8i(follower1.name, follower2.name)
+		local strCmpResult = _G.strcmputf8i(follower1.name, follower2.name)
 		if strCmpResult ~= 0 then
 			return strCmpResult < 0
 		end
@@ -98,12 +98,12 @@ local function sortFollowers(self) -- copied from GarrisonFollowerList_SortFollo
 
 	end
 
-	_G.table.sort(self.followersList, comparison)
+	_G.table.sort(fList, comparison)
 
 end
 function BasicBrokers.OnTooltip.Adventurers(tip)
 
-	if not aObj.tooltip then aObj.tooltip = tip end
+	aObj.tooltip = aObj.tooltip or tip
 	aObj.tooltip:ClearLines()
 	aObj.tooltip:AddLine(hexBlue .. "BasicBroker: " .. hexClose .. hexWhite .. "Adventurers" .. hexClose)
 	aObj.hdgCnt = 1
@@ -113,10 +113,11 @@ function BasicBrokers.OnTooltip.Adventurers(tip)
 		return
 	end
 
-	sortFollowers(aObj)
-
-	for _, i in _G.pairs(aObj.followersList) do
-		BasicBrokers.AdventurerLine(followers[i])
+	if aObj.followersList then
+		sortFollowers(aObj.followersList)
+		for _, i in _G.pairs(aObj.followersList) do
+			BasicBrokers.AdventurerLine(followers[i])
+		end
 	end
 
 end
@@ -128,7 +129,7 @@ function BasicBrokers.AdventurerLine(flwr)
 
 	-- Add Headings as required
 	if aObj.hdgCnt == 1 then
-		aObj.tooltip:AddLine(indent4 .. "Adventurers: " .. aObj.numActiveFollowers .. "/" .. maxCompanions)
+		aObj.tooltip:AddLine(indent4 .. "Adventurers: " .. aObj.numActiveFollowers .. "/" .. aObj.numFollowers)
 		aObj.hdgCnt = 2
 	end
 
@@ -143,8 +144,6 @@ function BasicBrokers.AdventurerLine(flwr)
 		aObj.tooltip:AddDoubleLine(followerInfo .. " (" .. flwr.level .. ")", hexBlue .. flwr.levelXP - flwr.xp .. " XP to next upgrade" .. hexClose)
 	end
 
-	followerName, status = nil, nil
-
 end
 
 local cnt = 0
@@ -153,7 +152,7 @@ local function initialize()
 	-- wait for garrison info to become available (>= 5 secs)
 	if not _G.C_Garrison.HasGarrison(garrisonType) then
 		if cnt < 2 then
-			_G.C_Timer.After(0.5, function()
+			_G.C_Timer.After(1.5, function()
 				cnt = cnt + 1
 				initialize()
 			end)
@@ -178,6 +177,12 @@ local function initialize()
 	_G.BasicBrokers.RegisterEvent("Adventurers", "GARRISON_FOLLOWER_XP_CHANGED")
 	_G.BasicBrokers.RegisterEvent("Adventurers", "GARRISON_FOLLOWER_DURABILITY_CHANGED")
 	_G.BasicBrokers.RegisterEvent("Adventurers", "GARRISON_FOLLOWER_CATEGORIES_UPDATED")
+
+	if not aObj.followersList then
+		_G.C_Timer.After(2.5, function()
+		    getAndShow()
+		end)
+	end
 
 end
 

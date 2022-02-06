@@ -25,7 +25,6 @@ local factionID = _G.UnitFactionGroup("player") == "Horde" and 1 or 2
 local function getTalentTree()
 
 	local talentTreeIDs = _G.C_Garrison.GetTalentTreeIDsByClassID(garrisonType, classID)
-	local completeTalentID = _G.C_Garrison.GetCompleteTalent(garrisonType)
 	if talentTreeIDs
 	and talentTreeIDs[factionID]
 	then
@@ -88,7 +87,7 @@ local function getAndShow()
 end
 
 local delay, tmrActive = 1.0, false
-function BasicBrokers.OnEvent.BfAFollowers(_, event, ...)
+function BasicBrokers.OnEvent.BfAFollowers(_, event, _)
 	-- _G.print("BB BfAMF event:", event, ...)
 
 	if (event == "GARRISON_TALENT_COMPLETE"
@@ -135,7 +134,7 @@ local function sortFollowers(self) -- copied from GarrisonFollowerList_SortFollo
 		end
 
 		-- last resort; all else being equal sort by name, and then followerID
-		local strCmpResult = strcmputf8i(follower1.name, follower2.name)
+		local strCmpResult = _G.strcmputf8i(follower1.name, follower2.name)
 		if strCmpResult ~= 0 then
 			return strCmpResult < 0
 		end
@@ -209,8 +208,6 @@ function BasicBrokers.BfAFollowerLine(flwr)
 		aObj.tooltip:AddDoubleLine(followerInfo, hexBlue .. flwr.levelXP - flwr.xp .. " XP to next upgrade" .. hexClose)
 	end
 
-	followerName, status = nil, nil
-
 end
 
 local function initialize()
@@ -256,8 +253,8 @@ end
 
 do
 
-	if _G.UnitLevel("player") < 50
-	or _G.UnitLevel("player") > 55
+	if _G.UnitLevel("player") < 45
+	or _G.UnitLevel("player") > 50
 	or not garrisonType
 	then
 		return

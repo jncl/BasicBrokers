@@ -3,7 +3,7 @@
 local _G = _G
 local BasicBrokers = _G.BasicBrokers
 
-local format, ipairs, pairs = _G.format, _G.ipairs, _G.pairs
+local format, ipairs = _G.format, _G.ipairs
 
 function BasicBrokers.OnEvent.Faction()
 
@@ -28,7 +28,7 @@ local function getFactionInfo()
 	local factionIndex = 0
 	local childIndex = 0
 	local childFactionIndex = 0
-	local name, standingID, barMin, barMax, barValue, isHeader, isCollapsed, hasRep, isWatched, isChild, factionID
+	local _, name, standingID, barMin, barMax, barValue, isHeader, isCollapsed, hasRep, isWatched, isChild, factionID
 
 	-- get and organize factions into myFactions
 	for i = 1, _G.GetNumFactions() do
@@ -42,7 +42,6 @@ local function getFactionInfo()
 			--Normalize Values
 			barMax = barMax - barMin
 			barValue = barValue - barMin
-			barMin = 0
 
 			if not isCollapsed then
 				if isHeader
@@ -83,16 +82,16 @@ function BasicBrokers.OnTooltip.Faction(tip)
 	-- _G.Spew("BB Factions", myFactions[0])
 
 	-- display factions
-	for k, v in ipairs(myFactions) do
+	for _, v in ipairs(myFactions) do
 		-- _G.Spew("BB myFactions", v)
 		if v.displayHeader then
 			BasicBrokers.Faction.tooltip:AddLine("|cff69b950" .. v.name .. "|r")
-			for j, h in ipairs(v.factions) do
+			for _, h in ipairs(v.factions) do
 				-- _G.Spew("BB Factions#1", h)
 				BasicBrokers.AddFaction(h, false)
 			end
 			if v.hasChildHeader then
-				for j, h in ipairs(v.children) do
+				for _, h in ipairs(v.children) do
 					if h.displayHeader then
 						if h.faction then
 							-- _G.Spew("BB Factions#2", h)
@@ -100,7 +99,7 @@ function BasicBrokers.OnTooltip.Faction(tip)
 						else
 							BasicBrokers.Faction.tooltip:AddLine("|cff69b950  " .. h.name .. "|r")
 						end
-						for e, d in ipairs(h.factions) do
+						for _, d in ipairs(h.factions) do
 							-- _G.Spew("BB Factions#3", d)
 							BasicBrokers.AddFaction(d, false)
 						end
@@ -125,7 +124,7 @@ function BasicBrokers.AddFaction(factionInfo, isHeader)
 	end
 	if not isHeader then factionInfo.name = "  " .. factionInfo.name end
 
-	local repMod, repCnt = 0, 0
+	local repMod, repCnt
 	-- Paragon Faction (Legion & BfA)
 	-- print("BB-F#1", factionInfo.standing, factionInfo.faction, factionInfo.value, factionInfo.maxvalue)
 	if factionInfo.standing == 8
@@ -143,14 +142,11 @@ function BasicBrokers.AddFaction(factionInfo, isHeader)
 	else
 		if factionInfo.maxvalue > 0 then
 			repMod = ((factionInfo.value / factionInfo.maxvalue) %1)
-			repCnt = (factionInfo.value / factionInfo.maxvalue) - repMod
 		else
-			repMod, repCnt = 0, 0
+			repMod = 0
 		end
 		BasicBrokers.Faction.tooltip:AddDoubleLine("  ".. hexcolor .. factionInfo.name .. "|r", hexcolor .. reputation .. ": " .. _G.math.floor((repMod * factionInfo.maxvalue) + 0.5) .. "|r / " .. hexcolor .. factionInfo.maxvalue .. "|r")
 	end
-
-	repMod, repCnt = nil, nil
 
 end
 
