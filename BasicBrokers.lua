@@ -4,6 +4,7 @@ local _G = _G
 _G[bbName] = BasicBrokers
 
 BasicBrokers.isClassic = _G.GetCVar("agentUID"):find("wow_classic") and true or false
+BasicBrokers.isRetailPTR = _G.GetCVar("agentUID"):find("wow_ptr") and true or false
 
 BasicBrokers.OnEvent = {}
 BasicBrokers.OnTooltip = {}
@@ -12,7 +13,9 @@ BasicBrokers.TT = _G.CreateFrame("GameTooltip", "BasicBrokerScanTip", nil, "Game
 BasicBrokers.TT:SetOwner(_G.WorldFrame, "ANCHOR_NONE")
 local ldb = _G.LibStub:GetLibrary("LibDataBroker-1.1")
 
-BasicBrokers.inGarrison = _G.C_Garrison.IsPlayerInGarrison(_G.Enum.GarrisonType.Type_6_0)
+-- if not BasicBrokers.isClassic then
+-- 	BasicBrokers.inGarrison = _G.C_Garrison.IsPlayerInGarrison(_G.Enum.GarrisonType.Type_6_0)
+-- end
 
 function BasicBrokers.CreatePlugin(plugin, pluginText, pluginIcon, pluginType)
 	BasicBrokers[plugin] = {
