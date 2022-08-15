@@ -202,9 +202,9 @@ function BasicBrokers.FollowerLine(flwr)
 
 end
 
+local cnt = 0
 local function initialize()
 
-	local cnt = 0
 	-- wait for garrison info to become available (>= 5 secs)
 	if not _G.C_Garrison.HasGarrison(garrisonType) then
 		if cnt < 2 then
@@ -246,13 +246,13 @@ end
 
 do
 
-	if _G.UnitLevel("player") < 40
-	or _G.UnitLevel("player") > 45
-	or not garrisonType
+	if _G.C_Garrison.HasGarrison(garrisonType)
+	and not _G.C_Garrison.HasGarrison(_G.Enum.GarrisonType.Type_8_0)
 	then
+		initialize()
+	else
 		return
 	end
 
-	initialize()
 
 end

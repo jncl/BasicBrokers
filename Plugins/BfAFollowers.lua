@@ -210,18 +210,22 @@ function BasicBrokers.BfAFollowerLine(flwr)
 
 end
 
+local cnt = 0
 local function initialize()
 
 	-- wait for garrison info to become available (>= 5 secs)
 	if not _G.C_Garrison.HasGarrison(garrisonType) then
-		_G.C_Timer.After(0.5, function()
-			initialize()
-		end)
-		return
+		if cnt < 2 then
+			_G.C_Timer.After(1.5, function()
+				cnt = cnt + 1
+				initialize()
+			end)
+			return
+		else
+			-- if not eligible for Adventurer Missions then do nothing
+			return
+		end
 	end
-
-	-- if not eligible for BfA Missions then do nothing
-	if not _G.C_Garrison.HasGarrison(garrisonType) then return end
 
 	-- create plugin
 	_G.BasicBrokers.CreatePlugin("BfAFollowers", "0/9", "Interface\\Icons\\Spell_Holy_ChampionsGrace.blp")
@@ -253,13 +257,12 @@ end
 
 do
 
-	if _G.UnitLevel("player") < 45
-	or _G.UnitLevel("player") > 50
-	or not garrisonType
+	if _G.C_Garrison.HasGarrison(garrisonType)
+	and not _G.C_Garrison.HasAdventures()
 	then
+		initialize()
+	else
 		return
 	end
-
-	initialize()
 
 end

@@ -188,9 +188,7 @@ end
 
 do
 
-	if _G.UnitLevel("player") < 50
-	or not garrisonType
-	then
+	if not _G.C_Garrison.HasAdventures() then
 		return
 	end
 
