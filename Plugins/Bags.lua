@@ -3,12 +3,16 @@
 local _G = _G
 local BasicBrokers = _G.BasicBrokers
 
+local GetBagName = _G.C_Container and _G.C_Container.GetBagName or _G.GetBagName
+local GetContainerNumSlots = _G.C_Container and _G.C_Container.GetContainerNumSlots or _G.GetContainerNumSlots
+local GetContainerNumFreeSlots = _G.C_Container and _G.C_Container.GetContainerNumFreeSlots or _G.GetContainerNumFreeSlots
+
 function BasicBrokers.OnEvent.Bags(_, _, _)
 	local total, free, used_per, used = 0, 0
 	for i = 0, 4 do
 		if BasicBrokers.IsValidBag(i) then
-			total = total + _G.GetContainerNumSlots(i)
-			free = free + _G.GetContainerNumFreeSlots(i)
+			total = total + GetContainerNumSlots(i)
+			free = free + GetContainerNumFreeSlots(i)
 		end
 	end
 	used = total - free
@@ -28,8 +32,8 @@ function BasicBrokers.OnTooltip.Bags(tip)
 	BasicBrokers.Bags.tooltip:ClearLines()
 	BasicBrokers.Bags.tooltip:AddLine("|cff8888eeBasicBroker:|r |cffffffffBags|r")
 	for i = 0, 4 do
-		if _G.GetBagName(i) then
-			BasicBrokers.Bags.tooltip:AddDoubleLine("|cff69b950  ".. _G.GetBagName(i)..":|r ", (_G.GetContainerNumSlots(i) - _G.GetContainerNumFreeSlots(i)).."/".. _G.GetContainerNumSlots(i))
+		if GetBagName(i) then
+			BasicBrokers.Bags.tooltip:AddDoubleLine("|cff69b950  ".. GetBagName(i)..":|r ", (GetContainerNumSlots(i) - GetContainerNumFreeSlots(i)).."/".. GetContainerNumSlots(i))
 		end
 	end
 end
@@ -58,7 +62,7 @@ BasicBrokers.RegisterEvent("Bags", "BAG_UPDATE")
 
 -- don't include counts of specialty bags
 function BasicBrokers.IsValidBag(num)
-	local bag = _G.GetBagName(num)
+	local bag = GetBagName(num)
 	if not bag then return false end
 	if BasicBrokers.NotBag[bag] then return false end
 	return true
