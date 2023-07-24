@@ -14,8 +14,8 @@ local hexLightBlue = _G.RGBToColorCode(0.683, 0.941, 1)
 local hexWhite = "|cffffffff"
 local indent4 = "    "
 local indent8 = indent4 .. indent4
-local garrisonType = _G.Enum.GarrisonType.Type_9_0
-local followerType = _G.Enum.GarrisonFollowerType.FollowerType_9_0
+local garrisonType = _G.Enum.GarrisonType.Type_9_0_Garrison
+local followerType = _G.Enum.GarrisonFollowerType.FollowerType_9_0_GarrisonFollower
 local followers = {}
 
 local function getFollowerInfo()

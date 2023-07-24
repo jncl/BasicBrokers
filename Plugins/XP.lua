@@ -71,7 +71,7 @@ function BasicBrokers.OnClick.XP()
 end
 
 -- check to see if this plugin should be loaded
-if _G.UnitLevel("player") == _G.MAX_PLAYER_LEVEL then return end
+if _G.UnitLevel("player") == _G.GetMaxPlayerLevel() then return end
 
 BasicBrokers.CreatePlugin("XP","0%","Interface\\AddOns\\BasicBrokers\\Icons\\xp.tga")
 BasicBrokers.RegisterEvent("XP", "PLAYER_XP_UPDATE")

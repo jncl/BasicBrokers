@@ -1,5 +1,5 @@
 -- **********
--- BASIC BfA Mission Followers
+-- BfA Mission Followers
 local _G = _G
 local aObj
 
@@ -15,8 +15,8 @@ local hexWhite = "|cffffffff"
 local indent4 = "    "
 local indent8 = indent4 .. indent4
 -- local followerType = 0
-local garrisonType = _G.Enum.GarrisonType.Type_8_0 -- BfA Missions
-local followerType = _G.Enum.GarrisonFollowerType.FollowerType_8_0_GarrisonFollower -- BfA Missions
+local garrisonType = _G.Enum.GarrisonType.Type_8_0_Garrison
+local followerType = _G.Enum.GarrisonFollowerType.FollowerType_8_0_GarrisonFollower
 local troops = {}
 local catLimit = 4 -- can be 6 if researched
 local classID = _G.select(3, _G.UnitClass("player"))

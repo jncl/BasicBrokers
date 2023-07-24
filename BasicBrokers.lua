@@ -14,7 +14,7 @@ BasicBrokers.TT:SetOwner(_G.WorldFrame, "ANCHOR_NONE")
 local ldb = _G.LibStub:GetLibrary("LibDataBroker-1.1")
 
 -- if not BasicBrokers.isClassic then
--- 	BasicBrokers.inGarrison = _G.C_Garrison.IsPlayerInGarrison(_G.Enum.GarrisonType.Type_6_0)
+-- 	BasicBrokers.inGarrison = _G.C_Garrison.IsPlayerInGarrison(_G.Enum.GarrisonType.Type_6_0_Garrison)
 -- end
 
 function BasicBrokers.CreatePlugin(plugin, pluginText, pluginIcon, pluginType)

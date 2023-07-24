@@ -3,9 +3,7 @@
 local _G = _G
 local BasicBrokers = _G.BasicBrokers
 
-local GetContainerNumSlots = _G.C_Container and _G.C_Container.GetContainerNumSlots or _G.GetContainerNumSlots
-
- BasicBrokers.itemSlot = {
+BasicBrokers.itemSlot = {
 	"Head",
 	"Shoulder",
 	"Chest",
@@ -159,19 +157,45 @@ function BasicBrokers.AddInventoryItem(index)
 	return 0
 end
 
+local GetContainerItemLink = _G.C_Container and _G.C_Container.GetContainerItemLink or _G.GetContainerItemLink
+local GetContainerItemInfo = _G.C_Container and _G.C_Container.GetContainerItemInfo or _G.GetContainerItemInfo
+local GetContainerItemDurability = _G.C_Container and _G.C_Container.GetContainerItemDurability or _G.GetContainerItemDurability
+local GetContainerNumSlots = _G.C_Container and _G.C_Container.GetContainerNumSlots or _G.GetContainerNumSlots
 function BasicBrokers.ItemData(index, bag)
 	local itemLink, cost, value, max, hasItem, _
 	if bag then
-		itemLink = _G.GetContainerItemLink(bag, index)
-		_, cost = BasicBrokers.TT:SetBagItem(bag, index)
-		hasItem = _G.GetContainerItemInfo(bag, index)
-		value, max = _G.GetContainerItemDurability(bag, index)
+		itemLink = GetContainerItemLink(bag, index)
+		hasItem = GetContainerItemInfo(bag, index)
+		value, max = GetContainerItemDurability(bag, index)
+		if _G.C_TooltipInfo and _G.C_TooltipInfo.GetBagItem then
+			local tooltipData = _G.C_TooltipInfo.GetBagItem(bag, index)
+			if tooltipData then
+				_G.TooltipUtil.SurfaceArgs(tooltipData)
+				cost = tooltipData.repairCost and tooltipData.repairCost or 0
+			else
+				cost = 0
+			end
+		else
+			_, cost = BasicBrokers.TT:SetBagItem(bag, index)
+		end
 	else
 		local slotName = BasicBrokers.itemSlot[index] .. "Slot"
 		local id = _G.GetInventorySlotInfo(slotName)
 		itemLink = _G.GetInventoryItemLink("player", id)
-		hasItem, _, cost = BasicBrokers.TT:SetInventoryItem("player", id)
 		value, max = _G.GetInventoryItemDurability(id)
+		if _G.C_TooltipInfo and _G.C_TooltipInfo.GetInventoryItem then
+			local tooltipData = _G.C_TooltipInfo.GetInventoryItem("player", id)
+			if tooltipData then
+				_G.TooltipUtil.SurfaceArgs(tooltipData)
+				cost = tooltipData.repairCost and tooltipData.repairCost or 0
+				hasItem = true
+			else
+				hasItem, cost = false, 0
+			end
+		else
+			hasItem, _, cost = BasicBrokers.TT:SetInventoryItem("player", id)
+		end
+
 	end
 	if hasItem and value then
 		return itemLink, cost, value, max
