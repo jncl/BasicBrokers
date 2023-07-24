@@ -3,7 +3,7 @@
 local _G = _G
 local BasicBrokers = _G.BasicBrokers
 
-local WoWClassic = _G.GetCVar("agentUID"):find("wow_classic") and true or false
+local GetContainerNumSlots = _G.C_Container and _G.C_Container.GetContainerNumSlots or _G.GetContainerNumSlots
 
  BasicBrokers.itemSlot = {
 	"Head",
@@ -191,7 +191,7 @@ function BasicBrokers.BagItems()
 	local hasItem, cost, _
 	local total_cost = 0
 	for bag = 0, 4 do
-		for slot = 1, _G.GetContainerNumSlots(bag) do
+		for slot = 1, GetContainerNumSlots(bag) do
 			hasItem, cost, _, _ = BasicBrokers.ItemData(slot, bag)
 			if hasItem then
 				total_cost = cost + total_cost
@@ -209,6 +209,6 @@ BasicBrokers.RegisterEvent("Durability", "PLAYER_REGEN_ENABLED")
 BasicBrokers.RegisterEvent("Durability", "PLAYER_DEAD")
 BasicBrokers.RegisterEvent("Durability", "PLAYER_UNGHOST")
 BasicBrokers.RegisterEvent("Durability", "UPDATE_INVENTORY_ALERTS")
-if not WoWClassic then
+if not BasicBrokers.isClassic then
 	BasicBrokers.RegisterEvent("Durability", "EQUIPMENT_SWAP_FINISHED")
 end
