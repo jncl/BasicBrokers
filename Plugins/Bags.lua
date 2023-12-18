@@ -1,15 +1,26 @@
 -- **********
--- BASIC BAGS
+-- BAGS
+-- **********
 local _G = _G
+-- luacheck: ignore 631 (line is too long)
+
 local BasicBrokers = _G.BasicBrokers
+local bbc = BasicBrokers.hexColors
+local colorEnd = _G.FONT_COLOR_CODE_CLOSE
 
 local GetBagName = _G.C_Container and _G.C_Container.GetBagName or _G.GetBagName
 local GetContainerNumSlots = _G.C_Container and _G.C_Container.GetContainerNumSlots or _G.GetContainerNumSlots
 local GetContainerNumFreeSlots = _G.C_Container and _G.C_Container.GetContainerNumFreeSlots or _G.GetContainerNumFreeSlots
 
-function BasicBrokers.OnEvent.Bags(_, _, _)
+function BasicBrokers.OnEvent.Bags(_, event, _)
+
+	if event == "PLAYER_LOGIN" then
+		BasicBrokers.RegisterEvent("Bags", "BAG_UPDATE")
+		BasicBrokers.UnregisterEvent("Faction", "PLAYER_LOGIN")
+	end
+
 	local total, free, used_per, used = 0, 0
-	for i = 0, 4 do
+	for i = 0, _G.NUM_BAG_FRAMES do
 		if BasicBrokers.IsValidBag(i) then
 			total = total + GetContainerNumSlots(i)
 			free = free + GetContainerNumFreeSlots(i)
@@ -17,25 +28,28 @@ function BasicBrokers.OnEvent.Bags(_, _, _)
 	end
 	used = total - free
 	used_per = (free / total)
-	local used_color = "|cFF00FF00"
-	local total_color = "|cFF00FF00"
+	local used_color = bbc.light_green
+	local total_color = bbc.light_green
 	if  used_per < .15 then
-		used_color = "|cFFFF0000"
+		used_color = bbc.red
 	elseif used_per < .35 then
-		used_color = "|cFFFFFF00"
+		used_color = bbc.yellow
 	end
-	BasicBrokers.Text( "Bags",  used_color .. used .. "|r/" .. total_color .. total .. "|r")
+	BasicBrokers.Text( "Bags",  used_color .. used .. colorEnd .. "/" .. total_color .. total .. colorEnd)
+
 end
 
 function BasicBrokers.OnTooltip.Bags(tip)
+
 	if not BasicBrokers.Bags.tooltip then BasicBrokers.Bags.tooltip = tip end
-	BasicBrokers.Bags.tooltip:ClearLines()
-	BasicBrokers.Bags.tooltip:AddLine("|cff8888eeBasicBroker:|r |cffffffffBags|r")
-	for i = 0, 4 do
-		if GetBagName(i) then
-			BasicBrokers.Bags.tooltip:AddDoubleLine("|cff69b950  ".. GetBagName(i)..":|r ", (GetContainerNumSlots(i) - GetContainerNumFreeSlots(i)).."/".. GetContainerNumSlots(i))
+	BasicBrokers.SetupTooltip(tip, "Bags")
+
+	for i = 0, _G.NUM_BAG_FRAMES do
+		if BasicBrokers.IsValidBag(i) then
+			BasicBrokers.Bags.tooltip:AddDoubleLine(bbc.green .. "  " .. GetBagName(i).. ":" .. colorEnd, (GetContainerNumSlots(i) - GetContainerNumFreeSlots(i)) .. " / " .. GetContainerNumSlots(i))
 		end
 	end
+
 end
 
 local function is_backpack_open()
@@ -46,6 +60,7 @@ local function is_backpack_open()
 end
 
 function BasicBrokers.OnClick.Bags(_, which)
+
 	which = which == "RightButton"
 	if which then
 		return
@@ -54,18 +69,23 @@ function BasicBrokers.OnClick.Bags(_, which)
 	else
 		_G.OpenAllBags()
 	end
+
 end
 
-BasicBrokers.CreatePlugin("Bags","0/0","Interface\\Minimap\\Tracking\\Banker.blp")
+BasicBrokers.CreatePlugin("Bags", "0/0", [[Interface\Minimap\Tracking\Banker]])
 BasicBrokers.RegisterEvent("Bags", "PLAYER_LOGIN")
-BasicBrokers.RegisterEvent("Bags", "BAG_UPDATE")
 
 -- don't include counts of specialty bags
 function BasicBrokers.IsValidBag(num)
+
 	local bag = GetBagName(num)
-	if not bag then return false end
-	if BasicBrokers.NotBag[bag] then return false end
+	if not bag
+	or BasicBrokers.NotBag[bag]
+	then
+		return false
+	end
 	return true
+
 end
 
 BasicBrokers.NotBag = {

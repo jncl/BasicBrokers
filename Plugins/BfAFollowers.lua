@@ -1,11 +1,12 @@
 -- **********
 -- BfA Mission Followers
+-- **********
 local _G = _G
 local aObj
 
 local BasicBrokers = _G.BasicBrokers
 
-if BasicBrokers.isClassic then return end
+if not BasicBrokers.isRtl then return end
 
 local hexClose = _G.FONT_COLOR_CODE_CLOSE
 local hexBlu = "|cff00ff00"
@@ -257,12 +258,12 @@ end
 
 do
 
-	if _G.C_Garrison.HasGarrison(garrisonType)
-	and not _G.C_Garrison.HasAdventures()
+	if not _G.C_Garrison.HasGarrison(garrisonType)
+	or not _G.C_Garrison.IsAtGarrisonMissionNPC()
 	then
-		initialize()
-	else
 		return
 	end
+
+	initialize()
 
 end

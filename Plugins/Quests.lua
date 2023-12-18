@@ -1,78 +1,126 @@
 -- **********
--- BASIC QUESTS
+-- QUESTS
+-- **********
 local _G = _G
 local BasicBrokers = _G.BasicBrokers
+local bbc = BasicBrokers.hexColors
+local colorStart = "|cff"
+local colorEnd = _G.FONT_COLOR_CODE_CLOSE
+local twoSpaces = "  "
+local cText = colorStart .. "%02X%02X%02X"
+
+local GetNumQuestLogEntries = _G.C_QuestLog and _G.C_QuestLog.GetNumQuestLogEntries or _G.GetNumQuestLogEntries
+
+local function countQuests(numEntries)
+	local qCnt = 0
+	for i = 1, numEntries do
+		local questInfo = _G.C_QuestLog.GetInfo(i)
+		if not questInfo.isHeader
+		and not questInfo.isHidden
+		then
+			qCnt = qCnt + 1
+		end
+	end
+	return qCnt
+end
 
 function BasicBrokers.OnEvent.Quests(_, _, _)
-	local _, numQuests = _G.GetNumQuestLogEntries and _G.GetNumQuestLogEntries() or _G.C_QuestLog.GetNumQuestLogEntries()
-	if not numQuests then numQuests = 0 end
-	BasicBrokers.Text( "Quests",  "|cFF00FF00" .. numQuests .. "|r/" .. "|cFF00FF0025" .. "|r")
+
+	if event == "PLAYER_LOGIN" then
+		BasicBrokers.RegisterEvent("Quests", "QUEST_LOG_UPDATE")
+		BasicBrokers.RegisterEvent("Quests", "QUEST_WATCH_UPDATE")
+		BasicBrokers.RegisterEvent("Quests", "UNIT_QUEST_LOG_CHANGED")
+		BasicBrokers.UnregisterEvent("Quests", "PLAYER_LOGIN")
+	end
+
+	local numEntries, numQuests = GetNumQuestLogEntries()
+	-- print("Quests#1", numEntries, numQuests)
+	if BasicBrokers.isRtl then
+		numQuests = countQuests(numEntries)
+	end
+	-- print("Quests#2", numEntries, numQuests)
+	BasicBrokers.Text( "Quests",  bbc.light_green .. numQuests .. colorEnd .. "/" .. bbc.light_green .. "25" .. colorEnd)
+
 end
 
 function BasicBrokers.OnTooltip.Quests(tip)
+
 	if not BasicBrokers.Quests.tooltip then BasicBrokers.Quests.tooltip = tip end
-	BasicBrokers.Quests.tooltip:ClearLines()
-	BasicBrokers.Quests.tooltip:AddLine("|cff8888eeBasicBroker:|r |cffffffffQuests|r")
-	local numEntries = _G.GetNumQuestLogEntries and _G.GetNumQuestLogEntries() or _G.C_QuestLog.GetNumQuestLogEntries()
-	if numEntries == 0 then BasicBrokers.Quests.tooltip:AddLine("No quests in the QuestLog") end
-	for i = 1, numEntries do
-		BasicBrokers.QuestLine(i)
+	BasicBrokers.SetupTooltip(tip, "Quests")
+
+	local numEntries = GetNumQuestLogEntries()
+	if numEntries == 0 then
+		BasicBrokers.Quests.tooltip:AddLine("No quests in the QuestLog")
+	else
+		for i = 1, numEntries do
+			BasicBrokers.QuestLine(i)
+		end
 	end
 	BasicBrokers.Quests.tooltip:AddLine(" ")
 	BasicBrokers.Quests.tooltip:AddLine("Left-Click: Toggle QuestLog")
 	if _G.QuestHelper then
 		BasicBrokers.Quests.tooltip:AddLine("Right-Click: Open QuestHelper")
 	end
+
 end
 
+local hLine, tLine
 function BasicBrokers.QuestLine(questIndex)
-	local _, title, level, isHeader, isComplete, frequency, isStory
+
+	local _, title, level, isHeader, isComplete, frequency, isStory, isHidden
 	if _G.GetQuestLogTitle then
 		title, level, _, isHeader, _, isComplete, frequency, _, _, _, _, _, _, isStory = _G.GetQuestLogTitle(questIndex)
 	else
-		-- print("Quests", questIndex, _G.C_QuestLog.GetInfo(questIndex))
-		-- _G.Spew("", _G.C_QuestLog.GetInfo(questIndex))
 		local questInfo = _G.C_QuestLog.GetInfo(questIndex)
-		title, level, isHeader, isStory = questInfo.title, questInfo.level, questInfo.isHeader, questInfo.isStory
-		frequency = questInfo.frequency or 0
+		-- _G.Spew("", questInfo)
+		title, level, isHeader, isStory, isHidden, frequency = questInfo.title, questInfo.level, questInfo.isHeader, questInfo.isStory, questInfo.isHidden, questInfo.frequency or 0
 		isComplete = _G.C_QuestLog.IsComplete(questInfo.questID)
 	end
-	-- print("QuestLine", title, level, isHeader, isComplete, frequency, isStory)
-	-- local lineText, level, _, isHeader, _, isComplete, frequency = _G.GetQuestLogTitle(questIndex)
-	-- print("QuestLine", questIndex, lineText, level, tag, isHeader, _, isComplete, frequency)
+	-- print("QuestLine", title, level, isHeader, isComplete, frequency, isStory, isHidden)
 	-- ignore Missing header!/Weekly Quests/World Quests
-	if title:find("Missing")
+	if title:find("Missing header")
 	or title:find("Weekly")
 	or isStory
+	or isHidden
 	then
 		return
 	end
-	local cText = "|c%02X%02X%02X%02X%s|r"
+	tLine = title
 	local clr = _G.QuestDifficultyColors["header"]
 	if not isHeader then
-		title = "    [" .. level .. "] " .. title
+		tLine = twoSpaces .. "[" .. level .. "]" .. twoSpaces .. title
 		clr = _G.GetQuestDifficultyColor(level)
 	end
 	local R, G, B = clr.r * 255, clr.g * 255, clr.b * 255
 	if isComplete then
 		R, G, B = 100, 150, 255
-		title = title .. "  |cffffffff(complete)|r"
+		tLine = tLine .. bbc.green .. twoSpaces .. "(complete)" .. colorEnd
 	elseif frequency == (_G.LE_QUEST_FREQUENCY_DAILY or 1) then
-		title = title .. "  (daily)"
+		tLine = tLine .. twoSpaces .. "(daily)"
 	elseif frequency == (_G.LE_QUEST_FREQUENCY_WEEKLY or 2)then
-		title = title .. "  (weekly)"
+		tLine = tLine .. twoSpaces .. "(weekly)"
 	end
-	title = _G.format(cText, 255, R, G, B, title)
-	BasicBrokers.Quests.tooltip:AddLine(title)
+	tLine = _G.format(cText, R, G, B) .. tLine .. colorEnd
+	if isHeader then
+		hLine = tLine
+	else
+		-- DON'T show header line if no quests are shown
+		if hLine ~= "" then
+			BasicBrokers.Quests.tooltip:AddLine(hLine)
+			hLine = ""
+		end
+		BasicBrokers.Quests.tooltip:AddLine(tLine)
+	end
+
 end
 
 function BasicBrokers.OnClick.Quests(_, which)
+
 	which = which == "RightButton"
 	if which then if _G.QuestHelper then _G.QuestHelper:DoSettingsMenu() end return end
 	_G.ToggleQuestLog()
+
 end
 
-BasicBrokers.CreatePlugin("Quests", "0/25", "Interface\\Minimap\\Tracking\\Class.blp")
-BasicBrokers.RegisterEvent("Quests", "QUEST_LOG_UPDATE")
-BasicBrokers.RegisterEvent("Quests", "QUEST_WATCH_UPDATE")
-BasicBrokers.RegisterEvent("Quests", "UNIT_QUEST_LOG_CHANGED")
+BasicBrokers.CreatePlugin("Quests", "0/25", [[Interface\Minimap\Tracking\Class]])
+BasicBrokers.RegisterEvent("Quests", "PLAYER_LOGIN")

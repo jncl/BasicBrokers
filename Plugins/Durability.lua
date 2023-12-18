@@ -1,17 +1,23 @@
 -- **********
--- BASIC DURABILITY
+-- DURABILITY
+-- **********
 local _G = _G
+-- luacheck: ignore 631 (line is too long)
+
 local BasicBrokers = _G.BasicBrokers
+local bbc = BasicBrokers.hexColors
+local colorEnd = _G.FONT_COLOR_CODE_CLOSE
+local gender = _G.UnitSex("player")
 
 BasicBrokers.itemSlot = {
 	"Head",
 	"Shoulder",
 	"Chest",
+	"Wrist",
+	"Hands",
 	"Waist",
 	"Legs",
 	"Feet",
-	"Wrist",
-	"Hands",
 	"MainHand",
 	"SecondaryHand",
 }
@@ -29,6 +35,20 @@ _G.StaticPopupDialogs["BASICBROKER_DURABILITY"] = {
 }
 
 function BasicBrokers.OnEvent.Durability(_, event)
+
+	if event == "PLAYER_LOGIN" then
+		BasicBrokers.RegisterEvent("Durability", "MERCHANT_SHOW")
+		BasicBrokers.RegisterEvent("Durability", "MERCHANT_CLOSED")
+		BasicBrokers.RegisterEvent("Durability", "PLAYER_REGEN_ENABLED")
+		BasicBrokers.RegisterEvent("Durability", "PLAYER_DEAD")
+		BasicBrokers.RegisterEvent("Durability", "PLAYER_UNGHOST")
+		BasicBrokers.RegisterEvent("Durability", "UPDATE_INVENTORY_ALERTS")
+		if not BasicBrokers.isClsc then
+			BasicBrokers.RegisterEvent("Durability", "EQUIPMENT_SWAP_FINISHED")
+		end
+		BasicBrokers.UnregisterEvent("Durability", "PLAYER_LOGIN")
+	end
+
 	if event == "MERCHANT_SHOW" then
 		if _G.CanMerchantRepair() then
 			local cost = _G.GetRepairAllCost()
@@ -36,19 +56,32 @@ function BasicBrokers.OnEvent.Durability(_, event)
 				_G.StaticPopup_Show ("BASICBROKER_DURABILITY", BasicBrokers.GoldToText(cost), BasicBrokers.MerchantDiscount() )
 			end
 		end
-	elseif event == "MERCHANT_CLOSED" then
+	end
+	if event == "MERCHANT_CLOSED" then
 		_G.StaticPopup_Hide("BASICBROKER_DURABILITY")
 	end
+
 	BasicBrokers.UpdatePercent()
+
 end
 
 function BasicBrokers.MerchantDiscount()
-	local reputation, hexcolor
+
+	local hexcolor, standingText
 	local itemName, item_cost
 	local discount, total_cost = 0, 0
-	local faction, reaction =  BasicBrokers.TargetFactionInfo()
-	if faction and reaction then
-		reputation, hexcolor = BasicBrokers.FactionLabel(reaction)
+	local faction, standingID =  BasicBrokers.TargetFactionInfo()
+	print("MerchantDiscount", faction, standingID)
+	if standingID
+	and _G.type(standingID) ~= "table"
+	then
+		if BasicBrokers.isClscERA then
+			hexcolor = _G.PLAYER_FACTION_COLORS[_G.PLAYER_FACTION_GROUP[_G.UnitFactionGroup("player")]]:GenerateHexColorMarkup()
+		else
+			hexcolor = _G.FACTION_BAR_COLORS[standingID]:GenerateHexColorMarkup()
+		end
+		standingText = _G.GetText("FACTION_STANDING_LABEL" .. standingID, gender)
+		-- print("MerchantDiscount#2", hexcolor, standingText)
 		for k, _ in pairs(BasicBrokers.itemSlot) do
 			itemName, item_cost = BasicBrokers.ItemData(k)
 			if itemName then
@@ -58,62 +91,64 @@ function BasicBrokers.MerchantDiscount()
 			end
 		end
 		total_cost = total_cost + BasicBrokers.BagItems()
-		if reaction == 5 then
+		if standingID == 5 then -- Friendly
 			discount = (total_cost / 0.95) - total_cost
-		elseif reaction == 6 then
+		elseif standingID == 6 then -- Honored
 			discount = (total_cost / 0.9) - total_cost
-		elseif reaction == 7 then
+		elseif standingID == 7 then -- Revered
 			discount = (total_cost / 0.85) - total_cost
-		elseif reaction == 8 then
+		elseif standingID == 8 then -- Exalted
 			discount = (total_cost / 0.8) - total_cost
 		end
-		return "  " .. hexcolor .. reputation .. " Discount|r:  " .. BasicBrokers.GoldToText(discount)
+		return _G.strjoin(" ", hexcolor .. standingText .." Discount" .. colorEnd .. ": ", BasicBrokers.GoldToText(discount))
 	end
 	return ""
 end
 
 function BasicBrokers.TargetFactionInfo()
+
 	local tiptext, j
 	BasicBrokers.TT:SetOwner(_G.UIParent, "ANCHOR_NONE")
 	BasicBrokers.TT:ClearLines()
 	BasicBrokers.TT:SetUnit("target")
+
 	for i = 1, BasicBrokers.TT:NumLines() do
 	   tiptext = _G["BasicBrokerScanTipTextLeft" .. i]:GetText()
 	   j = 1
 	   -- rather not do-while but GetNumFactions() only returns active
 	   while _G.GetFactionInfo(j) do
-		local faction, _, reaction = _G.GetFactionInfo(j)
+		local faction, _, standingID = _G.GetFactionInfo(j)
 		if faction == tiptext then
-			return faction, reaction
+			return faction, standingID
 		end
 		j = j +1
-		if j > 20 then break end
+		if j > 250 then break end
 	   end
 	end
-	return nil, nil
-end
 
+	return nil, nil
+
+end
 
 function BasicBrokers.OnTooltip.Durability(tip)
 
 	if not BasicBrokers.Durability.tooltip then BasicBrokers.Durability.tooltip = tip end
+	BasicBrokers.SetupTooltip(tip, "Durability")
 
 	local total_repairs = 0
 	for k, _ in pairs(BasicBrokers.itemSlot) do
 		total_repairs = total_repairs + BasicBrokers.AddInventoryItem(k)
 	end
 
-	BasicBrokers.Durability.tooltip:ClearLines()
-	BasicBrokers.Durability.tooltip:AddLine("|cff8888eeBasicBroker:|r |cffffffffDurability|r")
-	BasicBrokers.Durability.tooltip:AddDoubleLine("|cff69b950Weapons & Armor:|r ",BasicBrokers.GoldToText(total_repairs))
+	BasicBrokers.Durability.tooltip:AddDoubleLine(bbc.green .. "Weapons & Armor:" .. colorEnd .. " ", BasicBrokers.GoldToText(total_repairs))
 	BasicBrokers.Durability.tooltip:AddLine(" ")
 
 	total_repairs = total_repairs + BasicBrokers.BagItems()
-	BasicBrokers.Durability.tooltip:AddDoubleLine("|cff69b950Total Repair Bill:|r ",BasicBrokers.GoldToText(total_repairs))
-	BasicBrokers.Durability.tooltip:AddDoubleLine("|cff69b950  Discount:|r Friendly",BasicBrokers.GoldToText(total_repairs * 0.05))
-	BasicBrokers.Durability.tooltip:AddDoubleLine("|cff69b950  Discount:|r Honored",BasicBrokers.GoldToText(total_repairs * 0.1))
-	BasicBrokers.Durability.tooltip:AddDoubleLine("|cff69b950  Discount:|r Revered",BasicBrokers.GoldToText(total_repairs * 0.15))
-	BasicBrokers.Durability.tooltip:AddDoubleLine("|cff69b950  Discount:|r Exalted",BasicBrokers.GoldToText(total_repairs * 0.2))
+	BasicBrokers.Durability.tooltip:AddDoubleLine(bbc.green .. "Total Repair Bill:" .. colorEnd .. " ", BasicBrokers.GoldToText(total_repairs))
+	BasicBrokers.Durability.tooltip:AddDoubleLine(bbc.green .. "  Discount:" .. colorEnd .. " Friendly", BasicBrokers.GoldToText(total_repairs * 0.05))
+	BasicBrokers.Durability.tooltip:AddDoubleLine(bbc.green .. "  Discount:" .. colorEnd .. " Honored", BasicBrokers.GoldToText(total_repairs * 0.1))
+	BasicBrokers.Durability.tooltip:AddDoubleLine(bbc.green .. "  Discount:" .. colorEnd .. " Revered", BasicBrokers.GoldToText(total_repairs * 0.15))
+	BasicBrokers.Durability.tooltip:AddDoubleLine(bbc.green .. "  Discount:" .. colorEnd .. " Exalted", BasicBrokers.GoldToText(total_repairs * 0.2))
 
 end
 
@@ -125,7 +160,7 @@ end
 function BasicBrokers.UpdatePercent()
 	local hasItem, value, max
 	local percentage = 1
-	local hexcolor = "|cff8888ee"
+	local hexcolor = bbc.blue
 	for k, _ in pairs(BasicBrokers.itemSlot) do
 		hasItem, _, value, max = BasicBrokers.ItemData(k)
 		if hasItem then
@@ -138,11 +173,11 @@ function BasicBrokers.UpdatePercent()
 	end
 	percentage = math.floor(percentage * 100)
 	if  percentage == 0 then
-		hexcolor = "|cFFFF0000"
+		hexcolor = bbc.red
 	elseif percentage < 30 then
-		hexcolor = "|cFFFFFF00"
+		hexcolor = bbc.yellow
 	end
-	BasicBrokers.Text( "Durability",  hexcolor..percentage.."%|r")
+	BasicBrokers.Text( "Durability",  hexcolor .. percentage .. "%" .. colorEnd)
 end
 
 function BasicBrokers.AddInventoryItem(index)
@@ -206,7 +241,7 @@ function BasicBrokers.ItemName(itemLink)
 	local itemName, _, itemRarity = _G.GetItemInfo(itemLink)
 	if itemName and (itemRarity or itemRarity == 0) then
 		local _, _, _, itemColor = _G.GetItemQualityColor(itemRarity)
-		itemName = itemColor .. itemName .. "|r"
+		itemName = itemColor .. itemName .. colorEnd
 	end
 	return itemName
 end
@@ -225,14 +260,5 @@ function BasicBrokers.BagItems()
 	return total_cost
 end
 
-BasicBrokers.CreatePlugin("Durability","0%","Interface\\Minimap\\Tracking\\Repair.blp")
+BasicBrokers.CreatePlugin("Durability","0%",[[Interface\Minimap\Tracking\Repair]])
 BasicBrokers.RegisterEvent("Durability", "PLAYER_LOGIN")
---BasicBrokers.RegisterEvent("Durability", "MERCHANT_SHOW")
-BasicBrokers.RegisterEvent("Durability", "MERCHANT_CLOSED")
-BasicBrokers.RegisterEvent("Durability", "PLAYER_REGEN_ENABLED")
-BasicBrokers.RegisterEvent("Durability", "PLAYER_DEAD")
-BasicBrokers.RegisterEvent("Durability", "PLAYER_UNGHOST")
-BasicBrokers.RegisterEvent("Durability", "UPDATE_INVENTORY_ALERTS")
-if not BasicBrokers.isClassic then
-	BasicBrokers.RegisterEvent("Durability", "EQUIPMENT_SWAP_FINISHED")
-end

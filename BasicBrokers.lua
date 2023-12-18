@@ -1,10 +1,24 @@
--- BasicBrokers Core
+-- **********
+-- Core
+-- **********
 local bbName, BasicBrokers = ...
 local _G = _G
+-- luacheck: ignore 631 (line is too long)
+
 _G[bbName] = BasicBrokers
 
-BasicBrokers.isClassic = _G.GetCVar("agentUID"):find("wow_classic") and true or false
-BasicBrokers.isRetailPTR = _G.GetCVar("agentUID"):find("wow_ptr") and true or false
+local agentUID = _G.C_CVar.GetCVar("agentUID")
+
+BasicBrokers.isClsc       = agentUID == "wow_classic" and true or false
+BasicBrokers.isClscPTR    = agentUID == "wow_classic_ptr" and true or false
+BasicBrokers.isClscERA    = agentUID == "wow_classic_era" and true or false
+BasicBrokers.isClscERAPTR = agentUID == "wow_classic_era_ptr" and true or false
+BasicBrokers.isClsc       = BasicBrokers.isClsc or BasicBrokers.isClscPTR
+BasicBrokers.isClscERA    = BasicBrokers.isClscERA or BasicBrokers.isClscERAPTR
+
+BasicBrokers.isRtl    = agentUID == "wow" and true or false
+BasicBrokers.isRtlPTR = agentUID == "wow_ptr" and true or false
+BasicBrokers.isRtl    = BasicBrokers.isRtl or BasicBrokers.isRtlPTR
 
 BasicBrokers.OnEvent = {}
 BasicBrokers.OnTooltip = {}
@@ -12,10 +26,6 @@ BasicBrokers.OnClick = {}
 BasicBrokers.TT = _G.CreateFrame("GameTooltip", "BasicBrokerScanTip", nil, "GameTooltipTemplate")
 BasicBrokers.TT:SetOwner(_G.WorldFrame, "ANCHOR_NONE")
 local ldb = _G.LibStub:GetLibrary("LibDataBroker-1.1")
-
--- if not BasicBrokers.isClassic then
--- 	BasicBrokers.inGarrison = _G.C_Garrison.IsPlayerInGarrison(_G.Enum.GarrisonType.Type_6_0_Garrison)
--- end
 
 function BasicBrokers.CreatePlugin(plugin, pluginText, pluginIcon, pluginType)
 	BasicBrokers[plugin] = {
@@ -48,7 +58,7 @@ function BasicBrokers.CommaFormat(amount)
   local formatted, k = amount
   while true do
     formatted, k = _G.string.gsub(formatted, "^(-?%d+)(%d%d%d)", '%1,%2')
-    if (k==0) then
+    if k == 0 then
       break
     end
   end
@@ -62,37 +72,43 @@ function BasicBrokers.DecimalFormat(amount, decimal)
   famount = _G.math.floor(famount)
   remain =  _G.math.floor( ((_G.math.abs(amount) - famount) * 10^decimal) + 0.5) / (10^decimal)
   formatted = BasicBrokers.CommaFormat(famount)
-  if (decimal > 0) then
+  if decimal > 0 then
     remain = _G.string.sub(_G.tostring(remain),3)
     formatted = formatted .. "." .. remain .. _G.string.rep("0", decimal - _G.string.len(remain))
   end
   return formatted
 end
 
+local colorStart = "|cff"
+local colorEnd = _G.FONT_COLOR_CODE_CLOSE
+BasicBrokers.hexColors = {
+	blue        = colorStart .. "8888ee",
+	copper      = colorStart .. "b87333",
+	green       = colorStart .. "69b950",
+	light_green = colorStart .. "00ff00",
+	gold        = colorStart .. "ffd700",
+	red         = colorStart .. "ff0000",
+	silver      = colorStart .. "c0c0c0",
+	yellow      = colorStart .. "ffff00",
+	white       = colorStart .. "ffffff",
+}
+local bbc = BasicBrokers.hexColors
 function BasicBrokers.GoldToText(money)
-	local gold, silver, copper
-	if money > 0 then
-		gold = _G.floor(money / 10000)
-		silver = _G.floor((money - (gold * 10000)) / 100)
-		copper = _G.mod(money, 100)
-		return _G.format("|cffffffff%i|r|cffffd700%s|r |cffffffff%i|r|cffc7c7cf%s|r |cffffffff%i|r|cffeda55f%s|r", gold, "g", silver, "s", copper, "c")
-	elseif money < 0 then
+	local gold, silver, copper = 0, 0, 0
+	if money < 0 then
 		money = (money * -1)
-		gold = _G.floor(money / 10000)
-		silver = _G.floor((money - (gold * 10000)) / 100)
-		copper = _G.mod(money, 100)
-		return _G.format("|cFFFF0000-%i|r|cffffd700%s|r |cFFFF0000%i|r|cffc7c7cf%s|r |cFFFF0000%i|r|cffeda55f%s|r", gold, "g", silver, "s", copper, "c")
-	else
-		return _G.format("|cffffffff%i|r|cffffd700%s|r |cffffffff%i|r|cffc7c7cf%s|r |cffffffff%i|r|cffeda55f%s|r", 0, "g", 0, "s", 0, "c")
 	end
+	if money ~= 0 then
+		gold   = _G.floor(money / 10000)
+		silver = _G.floor((money - (gold * 10000)) / 100)
+		copper = _G.floor((money - (gold * 10000) - (silver * 100)), 100)
+	end
+	return bbc.white .. BasicBrokers.CommaFormat(gold) .. colorEnd .. bbc.gold .. "g " .. colorEnd .. bbc.white .. silver .. colorEnd .. bbc.silver .. "s " .. colorEnd .. bbc.white .. copper .. colorEnd .. bbc.copper .. "c" .. colorEnd
 end
 
-function BasicBrokers.FactionLabel(reaction)
-	local name = _G.getglobal("FACTION_STANDING_LABEL" .. reaction)
-	local r = _G.FACTION_BAR_COLORS[reaction].r * 255
-	local g = _G.FACTION_BAR_COLORS[reaction].g * 255
-	local b = _G.FACTION_BAR_COLORS[reaction].b * 255
-	local cText = "|c%02X%02X%02X%02X"
-	local hexcolor = _G.format(cText, 255, r, g, b)
-	return name, hexcolor
+function BasicBrokers.SetupTooltip(tip, name)
+
+	tip:ClearLines()
+	tip:AddLine(bbc.blue .. "BasicBroker: " .. colorEnd .. bbc.white .. name .. colorEnd)
+
 end

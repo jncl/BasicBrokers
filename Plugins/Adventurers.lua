@@ -1,11 +1,13 @@
 -- **********
 -- Shadowlands Adventurers
-local _G = _G
+-- **********
 local aObj
+local _G = _G
+-- luacheck: ignore 631 (line is too long)
 
 local BasicBrokers = _G.BasicBrokers
 
-if BasicBrokers.isClassic then return end
+if not BasicBrokers.isRtl then return end
 
 local hexClose = _G.FONT_COLOR_CODE_CLOSE
 local hexGreen = "|cff00ff00"
@@ -188,7 +190,9 @@ end
 
 do
 
-	if not _G.C_Garrison.HasAdventures() then
+	if not _G.C_Garrison.HasAdventures()
+	or not _G.C_Garrison.IsAtGarrisonMissionNPC()
+	then
 		return
 	end
 

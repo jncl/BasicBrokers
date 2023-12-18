@@ -1,19 +1,26 @@
 -- **********
--- BASIC SKILLS
+-- SKILLS
+-- **********
 local _G = _G
 local BasicBrokers = _G.BasicBrokers
+local bbc = BasicBrokers.hexColors
+local colorEnd = _G.FONT_COLOR_CODE_CLOSE
+local twoSpaces = "  "
+
+if not BasicBrokers.isClsc then return end
 
 function BasicBrokers.OnEvent.Skills()
 	-- do nothing
 end
 
 function BasicBrokers.OnTooltip.Skills(tip)
+
+	if not BasicBrokers.Skills.tooltip then BasicBrokers.Skills.tooltip = tip end
+	BasicBrokers.SetupTooltip(tip, "Skills")
+
 	local skillName, isHeader, _, skillRank, skillModifier, skillMaxRank
 	local mySkills = {}
 	local headerIndex = 0
-	if not BasicBrokers.Skills.tooltip then BasicBrokers.Skills.tooltip = tip end
-	BasicBrokers.Skills.tooltip:ClearLines()
-	BasicBrokers.Skills.tooltip:AddLine("|cff8888eeBasicBroker:|r |cffffffffSkills|r")
 
 	-- store desired skill info in mySkills table
 	for i = 1, _G.GetNumSkillLines() do
@@ -37,16 +44,17 @@ function BasicBrokers.OnTooltip.Skills(tip)
 	-- display desired skill info
 	for _, v in ipairs(mySkills) do
 		if v.displayHeader then
-			BasicBrokers.Skills.tooltip:AddLine("|cff69b950".. v.name .. "|r")
+			BasicBrokers.Skills.tooltip:AddLine(bbc.green .. v.name .. colorEnd)
 			for _,h in ipairs(v.skills) do
-				BasicBrokers.Skills.tooltip:AddDoubleLine("  ".. h.name, h.rank .. "/" .. h.maxrank)
+				BasicBrokers.Skills.tooltip:AddDoubleLine(twoSpaces .. h.name, h.rank .. " / " .. h.maxrank)
 			end
 		end
 	end
+
 end
 
 function BasicBrokers.OnClick.Skills()
 	-- do nothing
 end
 
-BasicBrokers.CreatePlugin("Skills","Skills","Interface\\Minimap\\Tracking\\Ammunition.BLP")
+BasicBrokers.CreatePlugin("Skills", "Skills", [[Interface\Minimap\Tracking\Ammunition]])
