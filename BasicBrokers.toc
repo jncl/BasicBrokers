@@ -16,6 +16,7 @@ Plugins\Durability.lua
 Plugins\Faction.lua
 Plugins\Money.lua
 Plugins\OHFollowers.lua
+Plugins\Pet_XP.lua
 Plugins\Quests.lua
 Plugins\Skills.lua
 Plugins\XP.lua
