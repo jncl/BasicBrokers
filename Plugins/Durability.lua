@@ -49,17 +49,17 @@ function BasicBrokers.OnEvent.Durability(_, event)
 		BasicBrokers.UnregisterEvent("Durability", "PLAYER_LOGIN")
 	end
 
-	if event == "MERCHANT_SHOW" then
-		if _G.CanMerchantRepair() then
-			local cost = _G.GetRepairAllCost()
-			if cost > 0 then
-				_G.StaticPopup_Show ("BASICBROKER_DURABILITY", BasicBrokers.GoldToText(cost), BasicBrokers.MerchantDiscount() )
-			end
-		end
-	end
-	if event == "MERCHANT_CLOSED" then
-		_G.StaticPopup_Hide("BASICBROKER_DURABILITY")
-	end
+	-- if event == "MERCHANT_SHOW" then
+	-- 	if _G.CanMerchantRepair() then
+	-- 		local cost = _G.GetRepairAllCost()
+	-- 		if cost > 0 then
+	-- 			_G.StaticPopup_Show ("BASICBROKER_DURABILITY", BasicBrokers.GoldToText(cost), BasicBrokers.MerchantDiscount() )
+	-- 		end
+	-- 	end
+	-- end
+	-- if event == "MERCHANT_CLOSED" then
+	-- 	_G.StaticPopup_Hide("BASICBROKER_DURABILITY")
+	-- end
 
 	BasicBrokers.UpdatePercent()
 
@@ -115,7 +115,7 @@ function BasicBrokers.TargetFactionInfo()
 	for i = 1, BasicBrokers.TT:NumLines() do
 	   tiptext = _G["BasicBrokerScanTipTextLeft" .. i]:GetText()
 	   j = 1
-	   -- rather not do-while but GetNumFactions() only returns active
+	   -- rather not use while-do but GetNumFactions() only returns active
 	   while _G.GetFactionInfo(j) do
 		local faction, _, standingID = _G.GetFactionInfo(j)
 		if faction == tiptext then

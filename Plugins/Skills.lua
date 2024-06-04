@@ -7,7 +7,7 @@ local bbc = BasicBrokers.hexColors
 local colorEnd = _G.FONT_COLOR_CODE_CLOSE
 local twoSpaces = "  "
 
-if not BasicBrokers.isClsc then return end
+if BasicBrokers.isRtl then return end
 
 function BasicBrokers.OnEvent.Skills()
 	-- do nothing

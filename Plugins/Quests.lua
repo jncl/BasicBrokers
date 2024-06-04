@@ -2,6 +2,8 @@
 -- QUESTS
 -- **********
 local _G = _G
+-- luacheck: ignore 631 (line is too long)
+
 local BasicBrokers = _G.BasicBrokers
 local bbc = BasicBrokers.hexColors
 local colorStart = "|cff"
@@ -24,7 +26,7 @@ local function countQuests(numEntries)
 	return qCnt
 end
 
-function BasicBrokers.OnEvent.Quests(_, _, _)
+function BasicBrokers.OnEvent.Quests(_, event, _)
 
 	if event == "PLAYER_LOGIN" then
 		BasicBrokers.RegisterEvent("Quests", "QUEST_LOG_UPDATE")
@@ -33,13 +35,13 @@ function BasicBrokers.OnEvent.Quests(_, _, _)
 		BasicBrokers.UnregisterEvent("Quests", "PLAYER_LOGIN")
 	end
 
-	local numEntries, numQuests = GetNumQuestLogEntries()
-	-- print("Quests#1", numEntries, numQuests)
+	local numEntries, numQuests
+	numEntries, numQuests = GetNumQuestLogEntries()
 	if BasicBrokers.isRtl then
 		numQuests = countQuests(numEntries)
 	end
-	-- print("Quests#2", numEntries, numQuests)
-	BasicBrokers.Text( "Quests",  bbc.light_green .. numQuests .. colorEnd .. "/" .. bbc.light_green .. "25" .. colorEnd)
+	-- print("Quests", numEntries, numQuests)
+	BasicBrokers.Text("Quests",  bbc.light_green .. numQuests .. colorEnd .. "/" .. bbc.light_green .. _G.C_QuestLog.GetMaxNumQuestsCanAccept() .. colorEnd)
 
 end
 
