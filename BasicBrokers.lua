@@ -18,7 +18,8 @@ BasicBrokers.isClscERA    = BasicBrokers.isClscERA or BasicBrokers.isClscERAPTR
 
 BasicBrokers.isRtl    = agentUID == "wow" and true or false
 BasicBrokers.isRtlPTR = agentUID == "wow_ptr" and true or false
-BasicBrokers.isRtl    = BasicBrokers.isRtl or BasicBrokers.isRtlPTR
+BasicBrokers.isRtlPTRX = agentUID == "wow_ptr_x" and true or false
+BasicBrokers.isRtl    = BasicBrokers.isRtl or BasicBrokers.isRtlPTR or BasicBrokers.isRtlPTRX
 
 BasicBrokers.OnEvent = {}
 BasicBrokers.OnTooltip = {}
@@ -27,11 +28,12 @@ BasicBrokers.TT = _G.CreateFrame("GameTooltip", "BasicBrokerScanTip", nil, "Game
 BasicBrokers.TT:SetOwner(_G.WorldFrame, "ANCHOR_NONE")
 local ldb = _G.LibStub:GetLibrary("LibDataBroker-1.1")
 
+BasicBrokers.uCls = _G.select(2, _G.UnitClass("player"))
+
 function BasicBrokers.CreatePlugin(plugin, pluginText, pluginIcon, pluginType)
 	BasicBrokers[plugin] = {
 		label = "BasicBroker "..plugin,
 		frame = _G.CreateFrame("frame"),
-
 	}
 	BasicBrokers[plugin].brokerobj = ldb:NewDataObject(BasicBrokers[plugin].label, {
 		type = pluginType or "data source",
@@ -41,6 +43,15 @@ function BasicBrokers.CreatePlugin(plugin, pluginText, pluginIcon, pluginType)
 	BasicBrokers[plugin].frame:SetScript("OnEvent", BasicBrokers.OnEvent[plugin])
 	BasicBrokers[plugin].brokerobj.OnTooltipShow = BasicBrokers.OnTooltip[plugin]
 	BasicBrokers[plugin].brokerobj.OnClick = BasicBrokers.OnClick[plugin]
+end
+
+function BasicBrokers.DestroyPlugin(plugin)
+	ldb.attributestorage[BasicBrokers[plugin].brokerobj] = nil
+	ldb.namestorage[BasicBrokers[plugin].brokerobj] = nil
+	ldb.proxystorage[plugin] = nil
+	BasicBrokers[plugin].brokerobj = nil
+	BasicBrokers[plugin].frame = nil
+	BasicBrokers[plugin] = nil
 end
 
 function BasicBrokers.RegisterEvent(plugin, event)
