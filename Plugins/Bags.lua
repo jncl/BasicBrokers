@@ -16,7 +16,7 @@ function BasicBrokers.OnEvent.Bags(_, event, _)
 
 	if event == "PLAYER_LOGIN" then
 		BasicBrokers.RegisterEvent("Bags", "BAG_UPDATE")
-		BasicBrokers.UnregisterEvent("Faction", "PLAYER_LOGIN")
+		BasicBrokers.UnregisterEvent("Bags", "PLAYER_LOGIN")
 	end
 
 	local total, free, used_per, used = 0, 0

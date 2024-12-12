@@ -3,7 +3,6 @@
 -- **********
 local bbName, BasicBrokers = ...
 local _G = _G
--- luacheck: ignore 631 (line is too long)
 
 _G[bbName] = BasicBrokers
 
@@ -16,23 +15,26 @@ BasicBrokers.isClscERAPTR = agentUID == "wow_classic_era_ptr" and true or false
 BasicBrokers.isClsc       = BasicBrokers.isClsc or BasicBrokers.isClscPTR
 BasicBrokers.isClscERA    = BasicBrokers.isClscERA or BasicBrokers.isClscERAPTR
 
-BasicBrokers.isRtl    = agentUID == "wow" and true or false
-BasicBrokers.isRtlPTR = agentUID == "wow_ptr" and true or false
-BasicBrokers.isRtlPTRX = agentUID == "wow_ptr_x" and true or false
-BasicBrokers.isRtl    = BasicBrokers.isRtl or BasicBrokers.isRtlPTR or BasicBrokers.isRtlPTRX
+BasicBrokers.isRtl        = agentUID == "wow" and true or false
+BasicBrokers.isRtlPTR     = agentUID == "wow_ptr" and true or false
+BasicBrokers.isRtlPTRX    = agentUID == "wow_ptr_x" and true or false
+BasicBrokers.isRtlBeta    = agentUID == "wow_beta" and true or false
+BasicBrokers.isRtl        = BasicBrokers.isRtl or BasicBrokers.isRtlPTR or BasicBrokers.isRtlPTRX or BasicBrokers.isRtlBeta
 
-BasicBrokers.OnEvent = {}
+BasicBrokers.OnEvent   = {}
 BasicBrokers.OnTooltip = {}
-BasicBrokers.OnClick = {}
+BasicBrokers.OnClick   = {}
+
 BasicBrokers.TT = _G.CreateFrame("GameTooltip", "BasicBrokerScanTip", nil, "GameTooltipTemplate")
 BasicBrokers.TT:SetOwner(_G.WorldFrame, "ANCHOR_NONE")
+
 local ldb = _G.LibStub:GetLibrary("LibDataBroker-1.1")
 
 BasicBrokers.uCls = _G.select(2, _G.UnitClass("player"))
 
 function BasicBrokers.CreatePlugin(plugin, pluginText, pluginIcon, pluginType)
 	BasicBrokers[plugin] = {
-		label = "BasicBroker "..plugin,
+		label = "BasicBroker " .. plugin,
 		frame = _G.CreateFrame("frame"),
 	}
 	BasicBrokers[plugin].brokerobj = ldb:NewDataObject(BasicBrokers[plugin].label, {

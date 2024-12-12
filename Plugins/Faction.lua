@@ -1,8 +1,12 @@
+-- Replaced by Reputation.lua for Retail
+if _G.BasicBrokers.isRtl then
+	return
+end
+
 -- **********
 -- FACTION
 -- **********
 local _G = _G
--- luacheck: ignore 631 (line is too long)
 
 local BasicBrokers = _G.BasicBrokers
 local colorStart = "|cff"
@@ -36,6 +40,23 @@ local function unpackInfoEntry(factionInfo)
 	factionType        = factionInfo[18]
 	standingText       = factionInfo[19]
 
+	-- { Name = "factionID", Type = "number", Nilable = false },
+	-- { Name = "name", Type = "cstring", Nilable = false },
+	-- { Name = "description", Type = "cstring", Nilable = false },
+	-- { Name = "reaction", Type = "luaIndex", Nilable = false },
+	-- { Name = "currentReactionThreshold", Type = "number", Nilable = false },
+	-- { Name = "nextReactionThreshold", Type = "number", Nilable = false },
+	-- { Name = "currentStanding", Type = "number", Nilable = false },
+	-- { Name = "atWarWith", Type = "bool", Nilable = false },
+	-- { Name = "canToggleAtWar", Type = "bool", Nilable = false },
+	-- { Name = "isChild", Type = "bool", Nilable = false },
+	-- { Name = "isHeader", Type = "bool", Nilable = false },
+	-- { Name = "isHeaderWithRep", Type = "bool", Nilable = false },
+	-- { Name = "isCollapsed", Type = "bool", Nilable = false },
+	-- { Name = "isWatched", Type = "bool", Nilable = false },
+	-- { Name = "hasBonusRepGain", Type = "bool", Nilable = false },
+	-- { Name = "canSetInactive", Type = "bool", Nilable = false },
+	-- { Name = "isAccountWide", Type = "bool", Nilable = false },
 end
 local function packInfoEntry(factionInfo)
 
@@ -54,17 +75,12 @@ local function packInfoEntry(factionInfo)
 	-- --@debug@
 	-- _G.Spew("packInfoEntry #2", factionInfo)
 	-- --@end-debug@
-
 end
+-- local factionInfo
 local function getFactionInfo(idx)
-	local factionInfo
-	-- _G.print("getFactionInfo", idx)
-	if idx == 0 then
+	local factionInfo = {_G.GetFactionInfo(idx)}
+	if not factionInfo then
 		return {}
-	elseif idx < 250 then
-		factionInfo = {_G.GetFactionInfo(idx)}
-	else
-		factionInfo = {_G.GetFactionInfoByID(idx)}
 	end
 	--@debug@
 	-- _G.Spew("getFactionInfo #1", factionInfo)
@@ -78,36 +94,6 @@ local function getFactionInfo(idx)
 	factionType  = _G.FACTION_STANDING_LABEL or ""
 	standingText = _G.GetText("FACTION_STANDING_LABEL" .. standingID, _G.UnitSex("player")) or ""
 
-	if BasicBrokers.isRtl then
-		local isMajorFaction = factionID and _G.C_Reputation.IsMajorFaction(factionID)
-		local repInfo = factionID and _G.C_GossipInfo.GetFriendshipReputation(factionID)
-		if repInfo and repInfo.friendshipFactionID > 0 then
-			-- --@debug@
-			-- _G.Spew("repInfo" .. idx, repInfo)
-			-- --@end-debug@
-			standingID = repInfo.reaction
-			standingText = repInfo.reaction
-			if repInfo.nextThreshold then
-				barMin, barMax, barValue = repInfo.reactionThreshold, repInfo.nextThreshold, repInfo.standing
-			else
-				-- max rank, make it look like a full bar
-				barMin, barMax, barValue = 0, 1, 1
-			end
-			factionType = "rep"
-		elseif isMajorFaction then
-			local majorFactionData = _G.C_MajorFactions.GetMajorFactionData(factionID)
-			-- --@debug@
-			-- _G.Spew("majorFaction" .. idx, majorFactionData)
-			-- --@end-debug@
-			barMin, barMax = 0, majorFactionData.renownLevelThreshold
-			barValue = _G.C_MajorFactions.HasMaximumRenown(factionID) and majorFactionData.renownLevelThreshold or majorFactionData.renownReputationEarned or 0
-			standingID = majorFactionData.renownLevel
-			factionColor = _G.BLUE_FONT_COLOR
-			factionType = _G.RENOWN_LEVEL_LABEL
-			standingText = _G.RENOWN_LEVEL_LABEL .. majorFactionData.renownLevel
-		end
-	end
-
 	packInfoEntry(factionInfo)
 
 	--@debug@
@@ -115,7 +101,6 @@ local function getFactionInfo(idx)
 	--@end-debug@
 
 	return factionInfo
-
 end
 local function getAllFactionInfo()
 	-- print("getAllFactionInfo")
@@ -129,47 +114,44 @@ local function getAllFactionInfo()
 
 	-- get and organize factions into myFactions
 	for i = 1, _G.GetNumFactions() do
-		if not _G.IsFactionInactive(i) then
-			factionInfo = getFactionInfo(i)
+		factionInfo = getFactionInfo(i)
 
-			-- --@debug@
-			-- _G.Spew("getAllFactionInfo", factionInfo)
-			-- --@end-debug@
+		-- --@debug@
+		-- _G.Spew("getAllFactionInfo", factionInfo)
+		-- --@end-debug@
 
-			unpackInfoEntry(factionInfo)
+		unpackInfoEntry(factionInfo)
 
-			--Normalize Values
-			barMax = barMax - barMin
-			barValue = barValue - barMin
+		--Normalize Values
+		barMax = barMax - barMin
+		barValue = barValue - barMin
 
-			if not isCollapsed then
-				if isHeader then
-					if not isChild then
-						topheaderIndex = topheaderIndex + 1
-						factionIndex = 0
-						childIndex = 0
-						myFactions[topheaderIndex] = { name = name, displayHeader = true, faction = factionID, factions = {}, standing = standingID, children = {}, type = factionType, text = standingText, color = not BasicBrokers.isClsc and _G.FACTION_YELLOW_COLOR or {r = 1.0, g = 0.82, b = 0}}
-					else
-						myFactions[topheaderIndex].hasChildHeader = true
-						childIndex = childIndex + 1
-						childFactionIndex = 0
-						if hasRep then
-							myFactions[topheaderIndex].children[childIndex] = { name = name, displayHeader = true, factions = {}, standing = standingID, value = barValue, maxvalue = barMax, isWatched = isWatched, faction = factionID, type = factionType, text = standingText, color = factionColor}
-						else
-							myFactions[topheaderIndex].children[childIndex] = { name = name, displayHeader = true, factions = {}, type = factionType, text = standingText, color = factionColor}
-						end
-					end
-				elseif isChild then
-					childFactionIndex = childFactionIndex + 1
-					myFactions[topheaderIndex].children[childIndex].factions[childFactionIndex] = { name = name, standing = standingID, value = barValue, maxvalue = barMax, isWatched = isWatched, faction = factionID, type = factionType, text = standingText, color = factionColor}
+		if not isCollapsed then
+			if isHeader then
+				if not isChild then
+					topheaderIndex = topheaderIndex + 1
+					factionIndex = 0
+					childIndex = 0
+					myFactions[topheaderIndex] = { name = name, displayHeader = true, faction = factionID, factions = {}, standing = standingID, children = {}, type = factionType, text = standingText, color = not BasicBrokers.isClsc and _G.FACTION_YELLOW_COLOR or {r = 1.0, g = 0.82, b = 0}}
 				else
-					factionIndex = factionIndex + 1
-					myFactions[topheaderIndex].factions[factionIndex] = { name = name, standing = standingID, value = barValue, maxvalue = barMax, isWatched = isWatched, faction = factionID, type = factionType, text = standingText, color = factionColor}
+					myFactions[topheaderIndex].hasChildHeader = true
+					childIndex = childIndex + 1
+					childFactionIndex = 0
+					if hasRep then
+						myFactions[topheaderIndex].children[childIndex] = { name = name, displayHeader = true, factions = {}, standing = standingID, value = barValue, maxvalue = barMax, isWatched = isWatched, faction = factionID, type = factionType, text = standingText, color = factionColor}
+					else
+						myFactions[topheaderIndex].children[childIndex] = { name = name, displayHeader = true, factions = {}, type = factionType, text = standingText, color = factionColor}
+					end
 				end
+			elseif isChild then
+				childFactionIndex = childFactionIndex + 1
+				myFactions[topheaderIndex].children[childIndex].factions[childFactionIndex] = { name = name, standing = standingID, value = barValue, maxvalue = barMax, isWatched = isWatched, faction = factionID, type = factionType, text = standingText, color = factionColor}
+			else
+				factionIndex = factionIndex + 1
+				myFactions[topheaderIndex].factions[factionIndex] = { name = name, standing = standingID, value = barValue, maxvalue = barMax, isWatched = isWatched, faction = factionID, type = factionType, text = standingText, color = factionColor}
 			end
 		end
 	end
-
 end
 local function getHexColor(color)
 	return _G.format(cText, _G.Round(color.r * 255), _G.Round(color.g * 255), _G.Round(color.b * 255))

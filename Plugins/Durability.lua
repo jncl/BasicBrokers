@@ -205,8 +205,9 @@ function BasicBrokers.ItemData(index, bag)
 		if _G.C_TooltipInfo and _G.C_TooltipInfo.GetBagItem then
 			local tooltipData = _G.C_TooltipInfo.GetBagItem(bag, index)
 			if tooltipData then
-				_G.TooltipUtil.SurfaceArgs(tooltipData)
-				cost = tooltipData.repairCost and tooltipData.repairCost or 0
+				for i, lineData in _G.ipairs(tooltipData.lines) do
+					cost = lineData.repairCost and lineData.repairCost or 0
+				end
 			else
 				cost = 0
 			end
@@ -221,8 +222,9 @@ function BasicBrokers.ItemData(index, bag)
 		if _G.C_TooltipInfo and _G.C_TooltipInfo.GetInventoryItem then
 			local tooltipData = _G.C_TooltipInfo.GetInventoryItem("player", id)
 			if tooltipData then
-				_G.TooltipUtil.SurfaceArgs(tooltipData)
-				cost = tooltipData.repairCost and tooltipData.repairCost or 0
+				for i, lineData in _G.ipairs(tooltipData.lines) do
+					cost = lineData.repairCost and lineData.repairCost or 0
+				end
 				hasItem = true
 			else
 				hasItem, cost = false, 0

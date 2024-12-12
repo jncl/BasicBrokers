@@ -20,3 +20,4 @@ Plugins\Pet_XP.lua
 Plugins\Quests.lua
 Plugins\Skills.lua
 Plugins\XP.lua
+Plugins\Reputation.lua

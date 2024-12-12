@@ -16,7 +16,7 @@ function BasicBrokers.OnEvent.Money(_, event)
 		BasicBrokers.RegisterEvent("Money", "TRADE_MONEY_CHANGED")
 		BasicBrokers.RegisterEvent("Money", "SEND_MAIL_MONEY_CHANGED")
 		BasicBrokers.RegisterEvent("Money", "SEND_MAIL_COD_CHANGED")
-		BasicBrokers.UnregisterEvent("Faction", "PLAYER_LOGIN")
+		BasicBrokers.UnregisterEvent("Money", "PLAYER_LOGIN")
 	end
 
 	local current = BasicBrokers.GoldToText(_G.GetMoney())

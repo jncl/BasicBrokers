@@ -1,3 +1,4 @@
+-- luacheck: ignore 631 (line is too long)
 -- **********
 -- OrderHall Followers
 -- **********
@@ -248,7 +249,7 @@ end
 do
 
 	if _G.C_Garrison.HasGarrison(garrisonType)
-	and not _G.C_Garrison.HasGarrison(_G.Enum.GarrisonType.Type_8_0)
+	and not _G.C_Garrison.HasGarrison(_G.Enum.GarrisonType.Type_8_0_Garrison)
 	then
 		initialize()
 	else
