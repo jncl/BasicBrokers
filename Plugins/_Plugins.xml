@@ -12,6 +12,6 @@
 <Script file="Quests.lua"/>
 <Script file="Skills.lua"/>
 <Script file="XP.lua"/>
-<!-- <Script file="Reputation.lua"/> -->
+<Script file="Reputation.lua"/>
 
 </Ui>
