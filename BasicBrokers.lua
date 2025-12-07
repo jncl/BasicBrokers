@@ -68,7 +68,7 @@ function BasicBrokers.Text(plugin, txt)
 end
 
 function BasicBrokers.CommaFormat(amount)
-  local formatted, k = amount
+  local formatted, k = amount or 0
   while true do
     formatted, k = _G.string.gsub(formatted, "^(-?%d+)(%d%d%d)", '%1,%2')
     if k == 0 then
