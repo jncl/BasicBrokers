@@ -34,7 +34,7 @@ local function addFaction(factionData, indent)
 	elseif _G.C_Reputation.IsMajorFaction(factionData.factionID) then
 		local majorFactionData = _G.C_MajorFactions.GetMajorFactionData(factionData.factionID)
 		factionColor = _G.BLUE_FONT_COLOR -- always colour majorFaction blue
-		standingText = _G.RENOWN_LEVEL_LABEL .. majorFactionData.renownLevel
+		standingText = _G.RENOWN_LEVEL_LABEL:format(majorFactionData.renownLevel)
 		local isMaxRenown = _G.C_MajorFactions.HasMaximumRenown(factionData.factionID)
 		if isMaxRenown then
 			-- Max renown, make it look like a full bar
