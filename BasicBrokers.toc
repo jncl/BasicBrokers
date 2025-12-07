@@ -1,4 +1,4 @@
-## Interface: 110007, 40401, 11505
+## Interface: 110207, 50502, 11508, 110205, 20505, 50503, 120000
 
 ## Title: |cff8888eeBasicBroker:|r |cffffffffPlugins|r
 ## Author: Sid67
