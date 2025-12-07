@@ -10,9 +10,10 @@ local agentUID = _G.C_CVar.GetCVar("agentUID")
 
 BasicBrokers.isClsc       = agentUID == "wow_classic" and true or false
 BasicBrokers.isClscPTR    = agentUID == "wow_classic_ptr" and true or false
+BasicBrokers.isClscBeta   = agentUID == "wow_classic_beta" and true or false
 BasicBrokers.isClscERA    = agentUID == "wow_classic_era" and true or false
 BasicBrokers.isClscERAPTR = agentUID == "wow_classic_era_ptr" and true or false
-BasicBrokers.isClsc       = BasicBrokers.isClsc or BasicBrokers.isClscPTR
+BasicBrokers.isClsc       = BasicBrokers.isClsc or BasicBrokers.isClscPTR or BasicBrokers.isClscBeta
 BasicBrokers.isClscERA    = BasicBrokers.isClscERA or BasicBrokers.isClscERAPTR
 
 BasicBrokers.isRtl        = agentUID == "wow" and true or false
