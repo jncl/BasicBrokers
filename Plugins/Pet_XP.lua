@@ -2,30 +2,36 @@
 -- Pet XP
 -- **********
 local _G = _G
--- luacheck: ignore 631 (line is too long)
 
 local BasicBrokers = _G.BasicBrokers
+
+-- check to see if this plugin should be loaded
+if BasicBrokers.isRtl
+or BasicBrokers.isClsc
+or BasicBrokers.uCls ~= "HUNTER"
+then
+	return
+end
+
 local bbc = BasicBrokers.hexColors
 local colorEnd = _G.FONT_COLOR_CODE_CLOSE
 local twoSpaces = "  "
 
 local _, Session
 local function resetStats()
-	BasicBrokers.Pet_initialXP, _ = _G.GetPetExperience()
-	BasicBrokers.Pet_lastXP = BasicBrokers.Pet_initialXP
+	BasicBrokers.Pet_currLevel      = _G.UnitLevel("pet")
+	BasicBrokers.Pet_initialXP, _   = _G.GetPetExperience()
+	BasicBrokers.Pet_lastXP         = BasicBrokers.Pet_initialXP
+	BasicBrokers.Pet_killXP         = 0
 	BasicBrokers.Pet_sessionTime_XP = _G.time()
-	BasicBrokers.Pet_killXP = 0
-	BasicBrokers.Pet_currLevel = _G.UnitLevel("pet")
-	Session = 0
+	Session                         = 0
 end
 
 local hasPetUI, happiness, petLoyalty, totalPoints, spent, availTPs, playerLevel, petLevel, currXP, nextXP
 function BasicBrokers.OnEvent.Pet_XP(_, event, _)
 
 	if event == "PLAYER_LOGIN" then
-		if not BasicBrokers.isRtl then
-			BasicBrokers.RegisterEvent("Pet_XP", "UNIT_HAPPINESS")
-		end
+		BasicBrokers.RegisterEvent("Pet_XP", "UNIT_HAPPINESS")
 		BasicBrokers.RegisterEvent("Pet_XP", "UNIT_PET")
 		BasicBrokers.RegisterEvent("Pet_XP", "UNIT_PET_EXPERIENCE")
 		BasicBrokers.RegisterEvent("Pet_XP", "UNIT_PET_TRAINING_POINTS")
@@ -39,15 +45,13 @@ function BasicBrokers.OnEvent.Pet_XP(_, event, _)
 		BasicBrokers.Text("Pet_XP", "No Pet")
 		return
 	else
-		if not BasicBrokers.isRtl then
-			happiness, _, _ = _G.GetPetHappiness()
-		end
-		petLoyalty = _G.GetPetLoyalty()
+		happiness, _, _    = _G.GetPetHappiness()
+		petLoyalty         = _G.GetPetLoyalty()
 		totalPoints, spent = _G.GetPetTrainingPoints()
-		availTPs = (totalPoints - spent)
-		playerLevel = _G.UnitLevel("player")
-		petLevel = _G.UnitLevel("pet")
-		currXP, nextXP = _G.GetPetExperience()
+		availTPs           = (totalPoints - spent)
+		playerLevel        = _G.UnitLevel("player")
+		petLevel           = _G.UnitLevel("pet")
+		currXP, nextXP     = _G.GetPetExperience()
 		BasicBrokers.Text("Pet_XP", _G.format("%s : %s", availTPs, petLevel < playerLevel and _G.format("%.1f%%", (currXP / nextXP * 100)) or "--"))
 	end
 
@@ -59,7 +63,7 @@ function BasicBrokers.OnEvent.Pet_XP(_, event, _)
 	if event == "UNIT_PET_EXPERIENCE" then
 		BasicBrokers.Pet_killXP = currXP - BasicBrokers.Pet_lastXP
 		BasicBrokers.Pet_lastXP = currXP
-		Session = Session + BasicBrokers.Pet_killXP
+		Session                 = Session + BasicBrokers.Pet_killXP
 	end
 
 end
@@ -67,15 +71,17 @@ end
 local perHour, timeToLevel, Remaining, perKill
 function BasicBrokers.OnTooltip.Pet_XP(tip)
 
-	if not BasicBrokers.Pet_XP.tooltip then BasicBrokers.Pet_XP.tooltip = tip end
+	-- _G.print("OnTooltip Pet_XP", hasPetUI, happiness, petLoyalty, totalPoints, petLevel, currXP, nextXP)
+
+	if not BasicBrokers.Pet_XP.tooltip then
+		BasicBrokers.Pet_XP.tooltip = tip
+	end
 	BasicBrokers.SetupTooltip(tip, "Pet XP")
 
 	if not hasPetUI then
 		BasicBrokers.Pet_XP.tooltip:AddLine("No Pet Called")
 	else
-		if not BasicBrokers.isRtl then
-			BasicBrokers.Pet_XP.tooltip:AddDoubleLine(bbc.green .. twoSpaces .. "Happiness:" .. colorEnd, BasicBrokers.CommaFormat(happiness))
-		end
+		BasicBrokers.Pet_XP.tooltip:AddDoubleLine(bbc.green .. twoSpaces .. "Happiness:" .. colorEnd, BasicBrokers.CommaFormat(happiness))
 		BasicBrokers.Pet_XP.tooltip:AddDoubleLine(bbc.green .. twoSpaces .. "Loyalty:" .. colorEnd, BasicBrokers.CommaFormat(petLoyalty))
 		BasicBrokers.Pet_XP.tooltip:AddDoubleLine(bbc.green .. twoSpaces .. "Training Points:" .. colorEnd, BasicBrokers.CommaFormat(availTPs))
 
@@ -124,13 +130,6 @@ function BasicBrokers.OnClick.Pet_XP()
 		resetStats()
 	end
 
-end
-
--- check to see if this plugin should be loaded
-if BasicBrokers.isRtl
-or BasicBrokers.uCls ~= "HUNTER"
-then
-	return
 end
 
 BasicBrokers.CreatePlugin("Pet_XP", "0: 0%", [[Interface\AddOns\BasicBrokers\Icons\xp]])
