@@ -172,7 +172,7 @@ function BasicBrokers.OnEvent.Faction(_, event, _)
 		name, standingID, min, max, value, factionID = _G.GetWatchedFactionInfo()
 		value = format("%.1fk", ((value - min) / 1000))
 		max = format("%.1fk", ((max - min) / 1000))
-		if not BasicBrokers.isClsc then
+		if BasicBrokers.isRtl then
 			BasicBrokers.Text( "Faction", _G.FACTION_BAR_COLORS[standingID] .. "_CODE" .. name .. colorEnd .. ": " .. value .. " / " .. max)
 		else
 			BasicBrokers.Text( "Faction", getHexColor(_G.FACTION_BAR_COLORS[standingID]) .. name .. colorEnd .. ": " .. value .. " / " .. max)
